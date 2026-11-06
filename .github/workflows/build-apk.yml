@@ -3,7 +3,7 @@ name: SADIOLA SUGU Android
 on:
   push:
     branches:
-      - main
+      - apk-android
   workflow_dispatch:
 
 permissions:
@@ -16,11 +16,13 @@ jobs:
     steps:
       - name: Recuperer le projet
         uses: actions/checkout@v4
+        with:
+          ref: apk-android
 
       - name: Installer Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 24
+          node-version: 22
           cache: npm
 
       - name: Installer Java
@@ -31,6 +33,8 @@ jobs:
 
       - name: Installer Android SDK
         uses: android-actions/setup-android@v3
+        with:
+          packages: 'platform-tools'
 
       - name: Installer les dependances
         run: npm ci
