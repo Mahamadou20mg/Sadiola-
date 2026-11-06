@@ -1,0 +1,1338 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#087b58">
+<title>SADIOLA SUGU | Le marché en ligne</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+:root{
+  --green:#087b58;
+  --green-dark:#07503c;
+  --green-light:#e9f5ef;
+  --orange:#f2a14a;
+  --cream:#f5f8f5;
+  --dark:#202b26;
+  --muted:#7b8981;
+  --border:#e6eee8;
+  --white:#fff;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,sans-serif;color:var(--dark);background:white}
+button,input,textarea{font:inherit}
+button{cursor:pointer;border:0}
+a{text-decoration:none;color:inherit}
+.container{width:min(1180px,94%);margin:auto}
+
+.top-strip{
+  background:var(--green-dark);color:white;
+  padding:9px 12px;text-align:center;
+  font-size:11px;letter-spacing:.5px
+}
+header{
+  background:white;position:sticky;top:0;z-index:30;
+  box-shadow:0 3px 15px #173d2c0c
+}
+.header-main{
+  min-height:76px;display:flex;align-items:center;
+  justify-content:space-between;gap:20px
+}
+.brand-name{
+  color:var(--green);font-size:24px;
+  font-weight:900;letter-spacing:-1px
+}
+.brand-name span{color:var(--orange)}
+.brand-sub{
+  color:var(--muted);font-size:9px;
+  letter-spacing:3px;margin-top:4px
+}
+.search-box{
+  flex:1;max-width:510px;display:flex;
+  background:var(--cream);border:1px solid var(--border);
+  border-radius:12px;padding:5px
+}
+.search-box input{
+  flex:1;min-width:0;border:0;outline:0;
+  background:transparent;padding:11px;font-size:13px
+}
+.search-box button{
+  background:var(--green);color:white;
+  border-radius:9px;padding:0 17px;
+  font-size:12px;font-weight:bold
+}
+.header-actions{display:flex;align-items:center;gap:9px}
+.cart-button{
+  background:var(--green-light);color:var(--green);
+  border-radius:10px;padding:12px;font-weight:bold
+}
+.cart-count{
+  background:var(--orange);color:#302315;
+  border-radius:20px;padding:3px 7px;font-size:11px
+}
+.merchant-button{
+  background:var(--orange);color:#352515;
+  padding:13px 15px;border-radius:10px;
+  font-size:12px;font-weight:bold;white-space:nowrap
+}
+.mobile-search{display:none}
+.navbar{border-top:1px solid var(--border)}
+.navbar-inner{
+  display:flex;gap:27px;align-items:center;
+  min-height:42px;overflow-x:auto;white-space:nowrap
+}
+.navbar a{
+  font-size:12px;font-weight:bold;color:#647169;
+  padding:13px 0
+}
+.navbar a:first-child{color:var(--green)}
+
+.hero-wrap{
+  background:linear-gradient(135deg,#edf7f1,#f7faf5);
+  padding:28px 0 32px
+}
+.hero{
+  min-height:340px;display:grid;
+  grid-template-columns:1.1fr .9fr;
+  background:linear-gradient(115deg,#07503c,#087b58 60%,#14966b);
+  color:white;border-radius:23px;overflow:hidden;
+  position:relative
+}
+.hero-content{padding:48px 8%;align-self:center;z-index:2}
+.hero-tag{
+  display:inline-block;background:#ffffff20;
+  border:1px solid #ffffff50;border-radius:30px;
+  padding:8px 13px;font-size:10px;
+  letter-spacing:1px;margin-bottom:20px
+}
+.hero h1{
+  font-size:clamp(32px,5vw,52px);
+  line-height:1.1;max-width:530px;
+  margin-bottom:17px;letter-spacing:-1px
+}
+.hero p{
+  color:#e0f0e7;line-height:1.7;
+  font-size:14px;max-width:450px;margin-bottom:25px
+}
+.hero-cta{
+  display:inline-block;background:var(--orange);
+  color:#302315;padding:14px 20px;
+  border-radius:9px;font-size:12px;font-weight:900
+}
+.hero-image-area{
+  min-height:340px;position:relative;
+  display:flex;align-items:center;
+  justify-content:center;overflow:hidden
+}
+.hero-image-area:before{
+  content:"";position:absolute;width:280px;height:280px;
+  background:#ffffff18;border-radius:50%
+}
+.hero-image-area img{
+  position:absolute;inset:0;width:100%;height:100%;
+  object-fit:cover;display:none
+}
+.hero-image-area img.visible{display:block}
+.hero-emoji{font-size:110px;z-index:1}
+.hero-arrow{
+  position:absolute;top:50%;transform:translateY(-50%);
+  width:36px;height:36px;border-radius:50%;
+  background:white;color:var(--green);font-size:22px
+}
+.hero-arrow.left{left:10px}
+.hero-arrow.right{right:10px}
+.hero-dots{
+  position:absolute;bottom:13px;left:0;right:0;
+  display:flex;justify-content:center;gap:7px
+}
+.hero-dot{width:8px;height:8px;border-radius:20px;background:#ffffff80}
+.hero-dot.active{width:22px;background:var(--orange)}
+
+.advantages{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:12px;margin-top:18px
+}
+.advantage{
+  display:flex;align-items:center;gap:12px;
+  padding:14px;background:white;
+  border:1px solid var(--border);border-radius:12px
+}
+.advantage-icon{
+  width:40px;height:40px;border-radius:12px;
+  background:var(--green-light);
+  display:grid;place-items:center;font-size:19px
+}
+.advantage strong{font-size:12px;display:block;margin-bottom:4px}
+.advantage small{font-size:10px;color:var(--muted)}
+
+main{padding:38px 0 55px}
+.section{margin-bottom:44px}
+.section-head{
+  display:flex;justify-content:space-between;
+  align-items:end;gap:12px;margin-bottom:19px
+}
+.section-label{
+  color:var(--orange);font-size:10px;
+  font-weight:900;letter-spacing:1.5px;
+  text-transform:uppercase;margin-bottom:7px
+}
+.section-head h2{font-size:23px;color:var(--green-dark)}
+.section-head p{font-size:12px;color:var(--muted);margin-top:6px}
+
+.category-grid{
+  display:grid;grid-template-columns:repeat(6,1fr);gap:13px
+}
+.category-card{
+  border:1px solid var(--border);background:white;
+  border-radius:14px;padding:16px 7px;
+  text-align:center;transition:.2s
+}
+.category-card:hover,.category-card.active{
+  border-color:var(--green);background:var(--green-light);
+  transform:translateY(-2px)
+}
+.category-icon{
+  width:52px;height:52px;border-radius:50%;
+  background:var(--cream);margin:0 auto 10px;
+  display:grid;place-items:center;font-size:25px;overflow:hidden
+}
+.category-icon img{width:100%;height:100%;object-fit:contain;padding:7px}
+.category-card strong{font-size:11px;line-height:1.4}
+
+.category-section{margin-bottom:34px}
+.slider-heading{
+  display:flex;justify-content:space-between;
+  align-items:center;gap:10px;margin-bottom:14px
+}
+.slider-heading h3{font-size:18px;color:var(--green-dark)}
+.slider-heading small{
+  display:block;color:var(--muted);
+  font-size:10px;margin-top:5px
+}
+.slider-controls{display:flex;gap:7px}
+.slider-controls button{
+  width:35px;height:35px;border-radius:50%;
+  background:var(--green-light);color:var(--green);
+  font-size:20px
+}
+.slider-controls button:hover{background:var(--green);color:white}
+.product-slider{
+  display:flex;gap:14px;overflow-x:auto;
+  scroll-behavior:smooth;scroll-snap-type:x mandatory;
+  padding:3px 2px 13px;
+  scrollbar-width:thin;scrollbar-color:var(--green) var(--cream)
+}
+.product-slider::-webkit-scrollbar{height:5px}
+.product-slider::-webkit-scrollbar-thumb{
+  background:var(--green);border-radius:10px
+}
+.product-card{
+  flex:0 0 215px;border:1px solid var(--border);
+  border-radius:14px;overflow:hidden;background:white;
+  scroll-snap-align:start;transition:.2s
+}
+.product-card:hover{
+  transform:translateY(-3px);
+  box-shadow:0 8px 22px #173d2c12
+}
+.product-image{
+  height:185px;background:#f5f8f5;
+  display:flex;align-items:center;justify-content:center;
+  padding:12px
+}
+.product-image img{
+  width:100%;height:100%;object-fit:contain;
+  object-position:center
+}
+.product-info{padding:13px}
+.product-category{
+  color:var(--orange);font-size:9px;
+  font-weight:900;text-transform:uppercase
+}
+.product-info h4{
+  font-size:13px;line-height:1.4;
+  margin:7px 0;min-height:36px
+}
+.product-shop{font-size:10px;color:var(--muted);margin-bottom:12px}
+.product-bottom{
+  display:flex;justify-content:space-between;
+  align-items:center;gap:6px
+}
+.product-price{font-size:13px;color:var(--green);font-weight:900}
+.add-button{
+  background:var(--green);color:white;
+  padding:9px 10px;border-radius:8px;
+  font-size:10px;font-weight:bold
+}
+.add-button:hover{background:var(--green-dark)}
+.add-button:disabled{background:#aab5ae;cursor:not-allowed}
+.empty-state{
+  padding:25px 15px;background:var(--cream);
+  border-radius:13px;text-align:center;
+  color:var(--muted);font-size:12px;line-height:1.7
+}
+
+.shop-grid{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:14px
+}
+.shop-card{
+  border:1px solid var(--border);border-radius:14px;
+  padding:17px;background:white;text-align:center
+}
+.shop-logo{
+  width:65px;height:65px;border-radius:50%;
+  background:var(--green-light);margin:0 auto 11px;
+  display:grid;place-items:center;overflow:hidden;font-size:25px
+}
+.shop-logo img{width:100%;height:100%;object-fit:cover}
+.shop-card h3{font-size:13px;color:var(--green-dark);margin-bottom:6px}
+.shop-card p{font-size:10px;color:var(--muted);line-height:1.5}
+.shop-status{
+  display:inline-block;margin-top:10px;
+  background:var(--green-light);color:var(--green);
+  padding:5px 9px;border-radius:20px;font-size:9px
+}
+
+.seller-banner{
+  background:linear-gradient(110deg,#07503c,#087b58);
+  border-radius:20px;color:white;padding:35px 5%;
+  display:flex;align-items:center;
+  justify-content:space-between;gap:20px
+}
+.seller-banner h2{font-size:24px;margin-bottom:10px}
+.seller-banner p{
+  font-size:12px;color:#e0f0e7;
+  line-height:1.7;max-width:510px
+}
+.seller-banner a{
+  background:var(--orange);color:#302315;
+  padding:14px 18px;border-radius:9px;
+  font-size:11px;font-weight:900;white-space:nowrap
+}
+
+footer{background:#123b2d;color:white;padding:38px 0 20px}
+.footer-grid{
+  display:grid;grid-template-columns:1.4fr 1fr 1fr;
+  gap:25px;padding-bottom:28px
+}
+.footer-brand{font-size:23px;font-weight:900}
+.footer-brand span{color:var(--orange)}
+.footer-description{
+  color:#c8dfd3;font-size:11px;
+  line-height:1.8;margin-top:12px;max-width:300px
+}
+.footer-column h4{font-size:12px;margin-bottom:13px}
+.footer-column a{
+  display:block;color:#c8dfd3;
+  font-size:11px;margin:10px 0
+}
+.footer-bottom{
+  border-top:1px solid #ffffff25;padding-top:17px;
+  text-align:center;color:#c8dfd3;
+  font-size:10px;line-height:1.9
+}
+
+/* PANIER ET COMMANDE */
+.cart-overlay{
+  position:fixed;inset:0;background:#0008;
+  z-index:100;display:none;justify-content:flex-end
+}
+.cart-overlay.open{display:flex}
+.cart-panel{
+  background:white;width:min(420px,100%);
+  height:100%;padding:22px;overflow:auto
+}
+.cart-head{
+  display:flex;justify-content:space-between;
+  align-items:center;margin-bottom:20px
+}
+.cart-head h2{color:var(--green)}
+.close-cart{
+  background:var(--green-light);color:var(--green);
+  border-radius:8px;padding:10px 12px
+}
+.cart-line{
+  display:flex;justify-content:space-between;
+  gap:10px;padding:13px 0;
+  border-bottom:1px solid var(--border);font-size:12px
+}
+.cart-line button{
+  background:#fcebea;color:#b43d36;
+  padding:8px 10px;border-radius:7px
+}
+.cart-total{
+  display:flex;justify-content:space-between;
+  padding:20px 0;font-weight:900
+}
+.cart-note{font-size:11px;color:var(--muted);line-height:1.7}
+.checkout-form{
+  border-top:1px solid var(--border);
+  padding-top:18px;margin-top:10px
+}
+.checkout-form h3{
+  color:var(--green-dark);font-size:16px;margin-bottom:15px
+}
+.checkout-form label{
+  display:block;font-size:12px;font-weight:bold;
+  margin:13px 0 7px
+}
+.checkout-form input,.checkout-form textarea{
+  width:100%;border:1px solid var(--border);
+  border-radius:9px;padding:12px;outline:none;
+  font-size:14px;background:#fafcf9;color:var(--dark)
+}
+.checkout-form input:focus,.checkout-form textarea:focus{
+  border-color:var(--green)
+}
+.checkout-form textarea{min-height:85px;resize:vertical}
+.checkout-submit{
+  width:100%;padding:15px;margin-top:15px;
+  border-radius:9px;background:var(--green);
+  color:white;font-weight:bold;font-size:13px
+}
+.checkout-submit:disabled{opacity:.5;cursor:not-allowed}
+.checkout-message{
+  display:none;margin-top:14px;padding:13px;
+  border-radius:9px;font-size:12px;line-height:1.7;
+  overflow-wrap:anywhere
+}
+.checkout-message.error{
+  display:block;background:#fff0ee;color:#a32e26
+}
+.checkout-message.success{
+  display:block;background:var(--green-light);
+  color:var(--green-dark)
+}
+.order-reference{
+  font-size:11px;padding:8px 0;
+  border-bottom:1px solid #d5e9dc;
+  overflow-wrap:anywhere
+}
+
+@media(max-width:800px){
+  .header-main{min-height:66px;gap:8px}
+  .brand-name{font-size:19px}
+  .brand-sub{font-size:8px;letter-spacing:2px}
+  .header-main>.search-box{display:none}
+  .mobile-search{display:flex;padding-bottom:12px}
+  .mobile-search .search-box{max-width:none}
+  .merchant-button{font-size:10px;padding:11px 9px}
+  .cart-button{font-size:11px;padding:11px 8px}
+  .navbar-inner{gap:20px}
+  .hero{grid-template-columns:1fr}
+  .hero-content{padding:30px 7% 15px}
+  .hero h1{font-size:34px}
+  .hero-image-area{min-height:185px;height:185px}
+  .hero-emoji{font-size:75px}
+  .advantages{gap:7px}
+  .advantage{padding:9px 6px;gap:6px}
+  .advantage-icon{width:30px;height:30px;font-size:15px}
+  .advantage strong{font-size:9px}
+  .advantage small{font-size:8px}
+  .category-grid{grid-template-columns:repeat(3,1fr);gap:9px}
+  .category-card{padding:12px 5px}
+  .category-icon{width:45px;height:45px}
+  .product-card{flex-basis:175px}
+  .product-image{height:150px}
+  .shop-grid{grid-template-columns:repeat(2,1fr)}
+  .seller-banner{flex-direction:column;align-items:flex-start;padding:27px 22px}
+  .footer-grid{grid-template-columns:1fr 1fr}
+  .footer-grid>div:first-child{grid-column:1/-1}
+}
+@media(max-width:390px){
+  .brand-name{font-size:17px}
+  .merchant-button{padding:10px 7px}
+  .cart-button{padding:10px 6px}
+  .product-card{flex-basis:160px}
+  .product-image{height:140px}
+  .hero h1{font-size:30px}
+}
+</style>
+</head>
+
+<body>
+
+<div class="top-strip">
+  SADIOLA SUGU · VOTRE MARCHÉ, PARTOUT AU MALI
+</div>
+
+<header>
+  <div class="container header-main">
+    <a href="#" class="brand">
+      <div class="brand-name">SADIOLA <span>SUGU</span></div>
+      <div class="brand-sub">LE MARCHÉ EN LIGNE</div>
+    </a>
+
+    <div class="search-box">
+      <input id="searchInput" type="search"
+        placeholder="Rechercher un produit ou une boutique...">
+      <button onclick="renderProductSliders()">Rechercher</button>
+    </div>
+
+    <div class="header-actions">
+      <button class="cart-button" onclick="toggleCart()">
+        🛒 Panier <span class="cart-count" id="cartCount">0</span>
+      </button>
+      <a class="merchant-button" href="commercant.html">Ma boutique +</a>
+    </div>
+  </div>
+
+  <div class="container mobile-search">
+    <div class="search-box">
+      <input id="mobileSearch" type="search" placeholder="Que recherches-tu ?">
+      <button onclick="searchMobile()">OK</button>
+    </div>
+  </div>
+
+  <nav class="navbar">
+    <div class="container navbar-inner">
+      <a href="#">Accueil</a>
+      <a href="#categoriesSection">Catégories</a>
+      <a href="#produits">Produits</a>
+      <a href="#boutiques">Boutiques</a>
+      <a href="#vendeur">Devenir vendeur</a>
+    </div>
+  </nav>
+</header>
+
+<section class="hero-wrap">
+  <div class="container">
+    <div class="hero">
+      <div class="hero-content">
+        <span class="hero-tag" id="heroTag">🛍️ LE GRAND MARCHÉ EN LIGNE</span>
+        <h1 id="heroTitle">Tous tes achats au même endroit.</h1>
+        <p id="heroSubtitle">
+          Découvre des produits, explore les boutiques
+          et fais tes achats facilement depuis ton téléphone.
+        </p>
+        <a href="#produits" class="hero-cta" id="heroLink">
+          Découvrir les produits →
+        </a>
+      </div>
+
+      <div class="hero-image-area">
+        <span class="hero-emoji" id="heroEmoji">🛍️</span>
+        <img id="heroImage" alt="SADIOLA SUGU">
+        <button class="hero-arrow left" id="prevBanner"
+          onclick="changeBanner(-1)" style="display:none">‹</button>
+        <button class="hero-arrow right" id="nextBanner"
+          onclick="changeBanner(1)" style="display:none">›</button>
+        <div class="hero-dots" id="bannerDots"></div>
+      </div>
+    </div>
+
+    <div class="advantages">
+      <div class="advantage">
+        <div class="advantage-icon">🏪</div>
+        <div><strong>Plusieurs boutiques</strong><small>Un seul marché</small></div>
+      </div>
+      <div class="advantage">
+        <div class="advantage-icon">📱</div>
+        <div><strong>Achat facile</strong><small>Sur ton téléphone</small></div>
+      </div>
+      <div class="advantage">
+        <div class="advantage-icon">🇲🇱</div>
+        <div><strong>Marché malien</strong><small>Partout au Mali</small></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<main class="container">
+
+  <section class="section" id="categoriesSection">
+    <div class="section-head">
+      <div>
+        <div class="section-label">Explorer le marché</div>
+        <h2>Nos catégories</h2>
+        <p>Choisis une catégorie pour voir les articles.</p>
+      </div>
+    </div>
+    <div class="category-grid" id="categories">
+      <div class="empty-state">Chargement des catégories...</div>
+    </div>
+  </section>
+
+  <section class="section" id="produits">
+    <div class="section-head">
+      <div>
+        <div class="section-label">Les nouveautés</div>
+        <h2>Produits disponibles</h2>
+        <p>Les produits publiés par les boutiques actives.</p>
+      </div>
+    </div>
+    <div id="productList">
+      <div class="empty-state">Chargement des produits...</div>
+    </div>
+    <div id="loadMessage"></div>
+  </section>
+
+  <section class="section" id="boutiques">
+    <div class="section-head">
+      <div>
+        <div class="section-label">Nos commerçants</div>
+        <h2>Les boutiques du marché</h2>
+        <p>Retrouve les commerçants validés.</p>
+      </div>
+    </div>
+    <div class="shop-grid" id="shopList">
+      <div class="empty-state">Chargement des boutiques...</div>
+    </div>
+  </section>
+
+  <section class="seller-banner" id="vendeur">
+    <div>
+      <h2>Tu as un commerce ?</h2>
+      <p>
+        Rejoins SADIOLA SUGU. Crée ta boutique en ligne,
+        publie tes produits et fais découvrir ton activité.
+      </p>
+    </div>
+    <a href="commercant.html">Créer ma boutique →</a>
+  </section>
+
+</main>
+
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <div class="footer-brand">SADIOLA <span>SUGU</span></div>
+        <p class="footer-description">
+          Votre marché, partout au Mali.
+          Des boutiques et des produits réunis
+          sur une seule plateforme.
+        </p>
+      </div>
+      <div class="footer-column">
+        <h4>Découvrir</h4>
+        <a href="#categoriesSection">Catégories</a>
+        <a href="#produits">Produits</a>
+        <a href="#boutiques">Boutiques</a>
+      </div>
+      <div class="footer-column">
+        <h4>Commerçants</h4>
+        <a href="commercant.html">Créer une boutique</a>
+        <a href="#vendeur">Vendre sur Sugu</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      © 2026 SADIOLA SUGU — Tous droits réservés.<br>
+      Propulsé par MOH-TECH
+    </div>
+  </div>
+</footer>
+
+<!-- PANIER ET FORMULAIRE DE COMMANDE -->
+<div class="cart-overlay" id="cartPanel" onclick="closeCartOutside(event)">
+  <div class="cart-panel">
+
+    <div class="cart-head">
+      <h2>Mon panier</h2>
+      <button class="close-cart" onclick="toggleCart()">Fermer ✕</button>
+    </div>
+
+    <div id="cartItems"></div>
+
+    <div class="cart-total">
+      <span>Total estimé</span>
+      <span id="cartTotal">0 FCFA</span>
+    </div>
+
+    <form id="checkoutForm" class="checkout-form" onsubmit="submitOrder(event)">
+      <h3>Informations de livraison</h3>
+
+      <label for="customerName">Nom complet</label>
+      <input id="customerName" type="text" minlength="2" maxlength="120"
+        placeholder="Ton nom complet" required>
+
+      <label for="customerPhone">Numéro de téléphone</label>
+      <input id="customerPhone" type="tel" minlength="6" maxlength="30"
+        placeholder="Exemple : 70000000" required>
+
+      <label for="deliveryAddress">Adresse de livraison</label>
+      <textarea id="deliveryAddress" minlength="3" maxlength="500"
+        placeholder="Ville, quartier et indications..." required></textarea>
+
+      <div id="checkoutMessage" class="checkout-message" aria-live="polite"></div>
+
+      <button id="checkoutButton" class="checkout-submit" type="submit" disabled>
+        Confirmer ma commande
+      </button>
+
+      <p class="cart-note" style="margin-top:12px">
+        Aucun compte n'est nécessaire pour commander.
+        Le paiement en ligne n'est pas encore activé.
+      </p>
+    </form>
+
+  </div>
+</div>
+
+<script>
+/* CONNEXION SUPABASE */
+const SUPABASE_URL="https://yujcrcfkykgzjkmiqczu.supabase.co";
+const SUPABASE_KEY="sb_publishable_-tpy193fdXgtyBk6zVTO0w_OmAIcoAP";
+const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+
+let categories=[];
+let products=[];
+let shops=[];
+let cart=[];
+let selectedCategory="Tout";
+let banners=[];
+let currentBannerIndex=0;
+let bannerTimer=null;
+
+function safe(value){
+  return String(value ?? "").replace(/[&<>"']/g,c=>({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+  })[c]);
+}
+
+function formatPrice(value){
+  return Number(value || 0).toLocaleString("fr-FR")+" FCFA";
+}
+
+function defaultImage(){
+  return "https://placehold.co/600x500/f5f8f5/087b58?text=SADIOLA+SUGU";
+}
+
+function categoryEmoji(name){
+  const n=String(name||"").toLowerCase();
+  if(n.includes("informatique")||n.includes("ordinateur"))return "💻";
+  if(n.includes("téléphone")||n.includes("telephone"))return "📱";
+  if(n.includes("vêtement")||n.includes("vetement"))return "👕";
+  if(n.includes("chaussure"))return "👟";
+  if(n.includes("beauté")||n.includes("beaute"))return "💄";
+  if(n.includes("maison"))return "🏠";
+  if(n.includes("électro")||n.includes("electro"))return "🔌";
+  if(n.includes("sport"))return "⚽";
+  if(n.includes("aliment"))return "🥫";
+  if(n.includes("accessoire"))return "👜";
+  return "🛍️";
+}
+
+/* CATEGORIES */
+async function loadCategories(){
+  const {data,error}=await db.from("categories")
+    .select("id,name,image_url,is_active,sort_order")
+    .eq("is_active",true)
+    .order("sort_order",{ascending:true});
+
+  if(error){
+    console.error("Erreur catégories:",error);
+    document.getElementById("categories").innerHTML=
+      '<div class="empty-state">Impossible de charger les catégories.</div>';
+    return;
+  }
+
+  categories=data||[];
+  renderCategories();
+}
+
+function renderCategories(){
+  const box=document.getElementById("categories");
+
+  let html=`
+    <button class="category-card ${selectedCategory==="Tout"?"active":""}"
+      onclick="filterCategory('Tout')">
+      <div class="category-icon">🛍️</div>
+      <strong>Tout voir</strong>
+    </button>`;
+
+  categories.forEach(c=>{
+    const icon=c.image_url
+      ?`<img src="${safe(c.image_url)}" alt="${safe(c.name)}">`
+      :categoryEmoji(c.name);
+
+    html+=`
+      <button class="category-card ${String(selectedCategory)===String(c.id)?"active":""}"
+        onclick="filterCategory('${safe(c.id)}')">
+        <div class="category-icon">${icon}</div>
+        <strong>${safe(c.name)}</strong>
+      </button>`;
+  });
+
+  if(!categories.length){
+    html='<div class="empty-state">Aucune catégorie active.</div>';
+  }
+
+  box.innerHTML=html;
+}
+
+/* BOUTIQUES */
+async function loadShops(){
+  const {data,error}=await db.from("shops")
+    .select("id,name,status,city,logo_url,category,description")
+    .eq("status","active")
+    .order("created_at",{ascending:false});
+
+  if(error){
+    console.error("Erreur boutiques:",error);
+    document.getElementById("shopList").innerHTML=
+      '<div class="empty-state">Impossible de charger les boutiques.</div>';
+    return;
+  }
+
+  shops=data||[];
+  renderShops();
+}
+
+function renderShops(){
+  const box=document.getElementById("shopList");
+
+  if(!shops.length){
+    box.innerHTML='<div class="empty-state">Les boutiques validées apparaîtront ici.</div>';
+    return;
+  }
+
+  box.innerHTML=shops.slice(0,8).map(s=>{
+    const logo=s.logo_url
+      ?`<img src="${safe(s.logo_url)}" alt="${safe(s.name)}">`
+      :"🏪";
+
+    return `
+      <article class="shop-card">
+        <div class="shop-logo">${logo}</div>
+        <h3>${safe(s.name)}</h3>
+        <p>${safe(s.category||"Boutique")}${s.city?" · "+safe(s.city):""}</p>
+        <span class="shop-status">✓ Boutique active</span>
+      </article>`;
+  }).join("");
+}
+
+/* PRODUITS */
+async function loadProducts(){
+  const box=document.getElementById("productList");
+  box.innerHTML='<div class="empty-state">Chargement des produits...</div>';
+
+  const {data,error}=await db.from("products")
+    .select("*")
+    .eq("is_active",true)
+    .order("created_at",{ascending:false});
+
+  if(error){
+    console.error("Erreur produits:",error);
+    box.innerHTML='<div class="empty-state">Impossible de charger les produits. Vérifie les autorisations Supabase.</div>';
+    return;
+  }
+
+  const {data:activeShops,error:shopError}=await db.from("shops")
+    .select("id,name")
+    .eq("status","active");
+
+  if(shopError){
+    console.error("Erreur boutiques des produits:",shopError);
+    box.innerHTML='<div class="empty-state">Impossible de vérifier les boutiques.</div>';
+    return;
+  }
+
+  const shopMap=new Map((activeShops||[]).map(s=>[String(s.id),s.name]));
+  const categoryMap=new Map(categories.map(c=>[String(c.id),c.name]));
+
+  products=(data||[])
+    .filter(p=>shopMap.has(String(p.shop_id)))
+    .map(p=>({
+      ...p,
+      shop_name:shopMap.get(String(p.shop_id))||"Boutique",
+      category_name:categoryMap.get(String(p.category_id))||"Autre"
+    }));
+
+  renderProductSliders();
+
+  document.getElementById("loadMessage").textContent=
+    products.length ? "" :
+    "Les produits publiés par les boutiques actives apparaîtront ici.";
+}
+
+/* CARTE PRODUIT */
+function productCard(p){
+  const available=Number(p.stock)>0;
+
+  return `
+    <article class="product-card">
+      <div class="product-image">
+        <img src="${safe(p.image_url||defaultImage())}"
+          alt="${safe(p.name)}" loading="lazy"
+          onerror="this.onerror=null;this.src='${defaultImage()}'">
+      </div>
+
+      <div class="product-info">
+        <div class="product-category">${safe(p.category_name)}</div>
+        <h4>${safe(p.name)}</h4>
+        <div class="product-shop">🏪 ${safe(p.shop_name)}</div>
+
+        <div class="product-bottom">
+          <span class="product-price">${formatPrice(p.price)}</span>
+          <button class="add-button"
+            ${available?"":"disabled"}
+            onclick="addToCart('${safe(p.id)}')">
+            ${available?"+ Ajouter":"Rupture"}
+          </button>
+        </div>
+      </div>
+    </article>`;
+}
+
+/* SLIDERS PAR CATEGORIE */
+function renderProductSliders(){
+  const box=document.getElementById("productList");
+
+  const query=document.getElementById("searchInput").value.trim().toLowerCase()
+    ||document.getElementById("mobileSearch").value.trim().toLowerCase();
+
+  const filtered=products.filter(p=>{
+    const text=[p.name,p.description,p.category_name,p.shop_name]
+      .join(" ").toLowerCase();
+
+    return text.includes(query) &&
+      (selectedCategory==="Tout" ||
+       String(p.category_id)===String(selectedCategory));
+  });
+
+  if(!filtered.length){
+    box.innerHTML='<div class="empty-state">Aucun produit trouvé. Les produits publiés apparaîtront ici.</div>';
+    return;
+  }
+
+  let html="";
+
+  categories.forEach(c=>{
+    const items=filtered.filter(p=>String(p.category_id)===String(c.id));
+    if(!items.length)return;
+
+    const sliderId="slider_"+String(c.id).replace(/[^a-zA-Z0-9_-]/g,"");
+
+    html+=`
+      <section class="category-section">
+        <div class="slider-heading">
+          <div>
+            <h3>${safe(c.name)}</h3>
+            <small>${items.length} produit(s)</small>
+          </div>
+          <div class="slider-controls">
+            <button onclick="moveSlider('${sliderId}',-1)">‹</button>
+            <button onclick="moveSlider('${sliderId}',1)">›</button>
+          </div>
+        </div>
+        <div class="product-slider" id="${sliderId}">
+          ${items.map(productCard).join("")}
+        </div>
+      </section>`;
+  });
+
+  const other=filtered.filter(p=>
+    !categories.some(c=>String(c.id)===String(p.category_id))
+  );
+
+  if(other.length){
+    html+=`
+      <section class="category-section">
+        <div class="slider-heading">
+          <h3>Autres produits</h3>
+          <div class="slider-controls">
+            <button onclick="moveSlider('slider_other',-1)">‹</button>
+            <button onclick="moveSlider('slider_other',1)">›</button>
+          </div>
+        </div>
+        <div class="product-slider" id="slider_other">
+          ${other.map(productCard).join("")}
+        </div>
+      </section>`;
+  }
+
+  box.innerHTML=html;
+}
+
+function moveSlider(id,direction){
+  const slider=document.getElementById(id);
+  if(!slider)return;
+
+  const card=slider.querySelector(".product-card");
+
+  slider.scrollBy({
+    left:(card?card.offsetWidth+14:220)*direction,
+    behavior:"smooth"
+  });
+}
+
+function filterCategory(id){
+  selectedCategory=id;
+  renderCategories();
+  renderProductSliders();
+  document.getElementById("produits").scrollIntoView({behavior:"smooth"});
+}
+
+function searchMobile(){
+  document.getElementById("searchInput").value=
+    document.getElementById("mobileSearch").value;
+
+  renderProductSliders();
+  document.getElementById("produits").scrollIntoView({behavior:"smooth"});
+}
+
+/* PANIER */
+function showCheckoutMessage(message,type){
+  const box=document.getElementById("checkoutMessage");
+  box.className="checkout-message "+type;
+  box.textContent=message;
+}
+
+function clearCheckoutMessage(){
+  const box=document.getElementById("checkoutMessage");
+  box.className="checkout-message";
+  box.textContent="";
+}
+
+function addToCart(id){
+  const p=products.find(x=>String(x.id)===String(id));
+  if(!p)return;
+
+  const stock=Number(p.stock||0);
+
+  if(stock<=0){
+    alert("Ce produit est actuellement indisponible.");
+    return;
+  }
+
+  const existing=cart.find(x=>String(x.id)===String(id));
+
+  if(existing){
+    if(existing.quantity>=stock){
+      alert("Tu as atteint la quantité disponible pour ce produit.");
+      return;
+    }
+    existing.quantity++;
+  }else{
+    cart.push({...p,quantity:1});
+  }
+
+  clearCheckoutMessage();
+  updateCart();
+}
+
+function removeFromCart(id){
+  cart=cart.filter(p=>String(p.id)!==String(id));
+  clearCheckoutMessage();
+  updateCart();
+}
+
+function updateCart(){
+  document.getElementById("cartCount").textContent=
+    cart.reduce((sum,p)=>sum+p.quantity,0);
+
+  const total=cart.reduce(
+    (sum,p)=>sum+Number(p.price)*p.quantity,0
+  );
+
+  document.getElementById("cartTotal").textContent=formatPrice(total);
+
+  const box=document.getElementById("cartItems");
+
+  if(!cart.length){
+    box.innerHTML='<p class="cart-note">Ton panier est vide. Ajoute des produits pour commander.</p>';
+  }else{
+    box.innerHTML=cart.map(p=>`
+      <div class="cart-line">
+        <div>
+          <strong>${safe(p.name)}</strong><br>
+          ${p.quantity} × ${formatPrice(p.price)}
+        </div>
+        <button type="button" onclick="removeFromCart('${safe(p.id)}')">
+          Retirer
+        </button>
+      </div>
+    `).join("");
+  }
+
+  const button=document.getElementById("checkoutButton");
+  if(button)button.disabled=cart.length===0;
+}
+
+function toggleCart(){
+  document.getElementById("cartPanel").classList.toggle("open");
+}
+
+function closeCartOutside(event){
+  if(event.target.id==="cartPanel")toggleCart();
+}
+
+/* ENREGISTREMENT DES COMMANDES */
+async function submitOrder(event){
+  event.preventDefault();
+
+  if(!cart.length){
+    showCheckoutMessage("Ton panier est vide.","error");
+    return;
+  }
+
+  const name=document.getElementById("customerName").value.trim();
+  const phone=document.getElementById("customerPhone").value.trim();
+  const address=document.getElementById("deliveryAddress").value.trim();
+
+  if(name.length<2){
+    showCheckoutMessage("Entre ton nom complet.","error");
+    return;
+  }
+
+  if(phone.length<6){
+    showCheckoutMessage("Entre un numéro de téléphone valide.","error");
+    return;
+  }
+
+  if(address.length<3){
+    showCheckoutMessage("Entre ton adresse de livraison.","error");
+    return;
+  }
+
+  const button=document.getElementById("checkoutButton");
+
+  button.disabled=true;
+  button.textContent="Envoi de la commande...";
+  clearCheckoutMessage();
+
+  try{
+    const items=cart.map(p=>({
+      product_id:p.id,
+      quantity:p.quantity
+    }));
+
+    const {data,error}=await db.rpc(
+      "create_marketplace_orders",
+      {
+        p_customer_name:name,
+        p_customer_phone:phone,
+        p_delivery_address:address,
+        p_items:items
+      }
+    );
+
+    if(error){
+      console.error("Erreur commande:",error);
+
+      let message="La commande n'a pas pu être enregistrée. Réessaie.";
+
+      const detail=String(error.message||"").toLowerCase();
+
+      if(detail.includes("stock")){
+        message="Stock insuffisant pour un ou plusieurs produits. Actualise la page et vérifie ton panier.";
+      }else if(detail.includes("active")||detail.includes("subscription")){
+        message="Une boutique ou un produit n'est plus disponible.";
+      }else if(detail.includes("product")){
+        message="Un produit de ton panier n'est plus disponible.";
+      }
+
+      showCheckoutMessage(message,"error");
+      return;
+    }
+
+    let result=data;
+
+    if(typeof result==="string"){
+      try{
+        result=JSON.parse(result);
+      }catch(e){
+        result=null;
+      }
+    }
+
+    if(!result || result.success!==true ||
+       !Array.isArray(result.orders) || !result.orders.length){
+
+      showCheckoutMessage(
+        "La réponse du serveur est incomplète. Contacte le commerçant avant de refaire une commande.",
+        "error"
+      );
+      return;
+    }
+
+    // Préparer le message de confirmation.
+    const messageBox=document.getElementById("checkoutMessage");
+    messageBox.innerHTML="";
+
+    const title=document.createElement("strong");
+    title.textContent="✓ Commande enregistrée avec succès !";
+    messageBox.appendChild(title);
+
+    const intro=document.createElement("p");
+    intro.textContent="Voici tes références de commande :";
+    messageBox.appendChild(intro);
+
+    result.orders.forEach(order=>{
+      const line=document.createElement("div");
+      line.className="order-reference";
+
+      const reference=document.createElement("div");
+      reference.textContent="Commande : "+String(order.order_id||"");
+
+      const amount=document.createElement("div");
+      amount.textContent="Montant : "+formatPrice(order.total);
+
+      line.appendChild(reference);
+      line.appendChild(amount);
+      messageBox.appendChild(line);
+    });
+
+    messageBox.className="checkout-message success";
+    messageBox.style.display="block";
+
+    // Vider le panier seulement après confirmation du serveur.
+    cart=[];
+    updateCart();
+
+    // Actualiser les stocks et les produits affichés.
+    await loadProducts();
+
+    // Conserver le formulaire rempli pour faciliter le suivi du client.
+    button.textContent="Commande envoyée";
+    button.disabled=true;
+
+  }catch(error){
+    console.error("Erreur inattendue:",error);
+    showCheckoutMessage(
+      "Une erreur de connexion est survenue. Vérifie ta connexion Internet et réessaie.",
+      "error"
+    );
+  }finally{
+    if(cart.length>0){
+      button.disabled=false;
+      button.textContent="Confirmer ma commande";
+    }
+  }
+}
+
+/* BANNIERES DU SUPER ADMIN */
+async function loadBanners(){
+  const {data,error}=await db.from("homepage_banners")
+    .select("*")
+    .eq("is_active",true)
+    .order("sort_order",{ascending:true});
+
+  if(error){
+    console.error("Erreur bannières:",error);
+    return;
+  }
+
+  banners=data||[];
+  if(!banners.length)return;
+
+  showBanner(0);
+  createBannerDots();
+
+  document.getElementById("prevBanner").style.display=
+    banners.length>1?"block":"none";
+
+  document.getElementById("nextBanner").style.display=
+    banners.length>1?"block":"none";
+
+  startBannerSlider();
+}
+
+function showBanner(index){
+  if(!banners.length)return;
+
+  currentBannerIndex=(index+banners.length)%banners.length;
+  const b=banners[currentBannerIndex];
+
+  document.getElementById("heroTag").textContent=
+    b.title||"SADIOLA SUGU";
+
+  document.getElementById("heroTitle").textContent=
+    b.subtitle||"Tous tes achats au même endroit.";
+
+  const img=document.getElementById("heroImage");
+  const emoji=document.getElementById("heroEmoji");
+
+  if(b.image_url){
+    img.src=b.image_url;
+    img.classList.add("visible");
+    emoji.style.display="none";
+  }else{
+    img.removeAttribute("src");
+    img.classList.remove("visible");
+    emoji.style.display="block";
+  }
+
+  const link=document.getElementById("heroLink");
+  link.href=b.link_url||"#produits";
+  link.textContent=b.link_url?"Découvrir →":"Découvrir les produits →";
+
+  updateBannerDots();
+}
+
+function createBannerDots(){
+  document.getElementById("bannerDots").innerHTML=
+    banners.map((b,i)=>`
+      <button class="hero-dot ${i===currentBannerIndex?"active":""}"
+        onclick="goToBanner(${i})"></button>`).join("");
+}
+
+function updateBannerDots(){
+  document.querySelectorAll(".hero-dot").forEach((dot,i)=>{
+    dot.classList.toggle("active",i===currentBannerIndex);
+  });
+}
+
+function changeBanner(direction){
+  if(banners.length<2)return;
+  showBanner(currentBannerIndex+direction);
+  startBannerSlider();
+}
+
+function goToBanner(index){
+  showBanner(index);
+  startBannerSlider();
+}
+
+function startBannerSlider(){
+  if(bannerTimer)clearInterval(bannerTimer);
+
+  if(banners.length>1){
+    bannerTimer=setInterval(
+      ()=>showBanner(currentBannerIndex+1),5000
+    );
+  }
+}
+
+/* RECHERCHE */
+document.getElementById("searchInput").addEventListener("input",()=>{
+  document.getElementById("mobileSearch").value=
+    document.getElementById("searchInput").value;
+  renderProductSliders();
+});
+
+document.getElementById("mobileSearch").addEventListener("input",()=>{
+  document.getElementById("searchInput").value=
+    document.getElementById("mobileSearch").value;
+  renderProductSliders();
+});
+
+/* ACTUALISATION AUTOMATIQUE */
+async function refreshMarketplace(){
+  await loadCategories();
+  await Promise.all([loadShops(),loadProducts()]);
+}
+
+/* DEMARRAGE */
+async function startPage(){
+  await loadCategories();
+
+  await Promise.all([
+    loadShops(),
+    loadProducts(),
+    loadBanners()
+  ]);
+
+  updateCart();
+
+  // Actualisation des produits et boutiques toutes les 30 secondes.
+  setInterval(refreshMarketplace,30000);
+}
+
+startPage();
+</script>
+
+</body>
+</html>

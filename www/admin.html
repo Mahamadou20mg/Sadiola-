@@ -1,0 +1,616 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#761e2b">
+<title>SUGU | Super Admin</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+:root{--wine:#761e2b;--wine-dark:#55151f;--gold:#d6a64b;--cream:#f7f6f3;--white:#fff;--dark:#292326;--muted:#817980;--line:#eee8e5;--green:#18794e;--red:#b42332;--shadow:0 5px 20px rgba(40,20,20,.06)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--cream);color:var(--dark);font-family:Arial,Helvetica,sans-serif}
+button,input,select,textarea{font:inherit}button{cursor:pointer}
+header{height:65px;background:var(--wine);color:white;display:flex;align-items:center;justify-content:space-between;padding:0 18px;position:sticky;top:0;z-index:20;box-shadow:0 3px 12px #0002}
+.brand{font-size:20px;font-weight:800}.brand span{color:var(--gold)}
+.header-right{display:flex;align-items:center;gap:10px}.owner-label{font-size:12px;color:#f4dfb4}
+.btn{border:0;border-radius:9px;padding:11px 15px;font-weight:700;background:var(--wine);color:white}
+.btn:hover{filter:brightness(.94)}.btn.gold{background:var(--gold);color:#30251a}.btn.light{background:#f5edf0;color:var(--wine)}.btn.danger{background:#a92d38;color:white}.btn.green{background:var(--green);color:white}.btn.small{padding:8px 11px;font-size:12px}.btn:disabled{opacity:.5;cursor:not-allowed}
+.login{width:calc(100% - 30px);max-width:420px;margin:55px auto;padding:25px;background:white;border-radius:18px;box-shadow:var(--shadow)}
+.login-logo{width:55px;height:55px;border-radius:16px;background:var(--wine);color:var(--gold);display:grid;place-items:center;font-size:27px}
+.login h2{color:var(--wine);margin-bottom:5px}.login p{color:var(--muted);font-size:14px}
+.field{margin:13px 0}label{display:block;font-size:13px;font-weight:700;margin-bottom:7px}
+input,select,textarea{width:100%;border:1px solid #e5dfe0;border-radius:9px;padding:12px;background:white;color:var(--dark);outline:none}
+input:focus,select:focus,textarea:focus{border-color:var(--gold);box-shadow:0 0 0 3px #d6a64b22}
+textarea{min-height:85px;resize:vertical}
+#app{display:none}.layout{display:flex;min-height:calc(100vh - 65px)}
+.sidebar{width:235px;flex-shrink:0;background:white;padding:17px 12px;border-right:1px solid var(--line);position:sticky;top:65px;height:calc(100vh - 65px);overflow:auto}
+.nav-title{color:#a49a9c;font-size:10px;font-weight:800;letter-spacing:1.2px;padding:12px 12px 7px}
+.sidebar button{display:flex;align-items:center;gap:10px;width:100%;border:0;background:transparent;color:#51474b;padding:12px 13px;margin:3px 0;border-radius:10px;text-align:left;font-size:13px;font-weight:700}
+.sidebar button.active{background:var(--wine);color:white}.sidebar button:hover:not(.active){background:#f8f1f2}
+main{flex:1;min-width:0;padding:25px;max-width:1500px;margin:0 auto;width:100%}
+section[hidden]{display:none!important}
+.page-head{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:20px}
+.page-head h1{font-size:23px;color:var(--wine);margin:0 0 5px}.page-head p{margin:0;color:var(--muted);font-size:13px}
+.cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.stat{background:white;border:1px solid var(--line);border-radius:15px;padding:18px;box-shadow:var(--shadow);min-width:0}
+.stat-top{display:flex;align-items:center;justify-content:space-between;gap:8px}.stat-name{font-size:12px;color:var(--muted);font-weight:700}
+.stat-icon{width:38px;height:38px;display:grid;place-items:center;border-radius:11px;background:#f7edef;font-size:18px}
+.stat-number{font-size:27px;font-weight:800;color:var(--wine);margin-top:13px}.stat-note{font-size:11px;color:var(--muted);margin-top:4px}
+.panel{background:white;border:1px solid var(--line);border-radius:14px;padding:17px;margin:12px 0;box-shadow:var(--shadow);overflow-wrap:anywhere}
+.panel-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.panel h3{margin:0 0 12px;color:var(--wine);font-size:16px}.panel p{font-size:13px;line-height:1.6;margin:5px 0;color:#51494c}.panel b{color:#30272b}
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;margin:15px 0}.toolbar input{flex:1;min-width:180px}
+.list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.list .panel{margin:0}
+.badge{display:inline-block;padding:5px 9px;border-radius:30px;font-size:11px;font-weight:800;background:#f1eeee;color:#665c60}
+.badge.good{background:#e7f5ed;color:#18794e}.badge.wait{background:#fff3d8;color:#96620c}.badge.bad{background:#fdebed;color:#a92d38}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:13px}
+.empty{padding:25px;text-align:center;background:white;border:1px dashed #ddd;border-radius:12px;color:var(--muted);font-size:13px}
+#message{padding:11px 14px;border-radius:9px;margin-bottom:15px;font-size:13px;font-weight:700;background:#fff3d8;color:#76510e;display:none}
+#message.show{display:block}#message.error{background:#fdebed;color:#a92d38}#message.success{background:#e7f5ed;color:#18794e}
+.quick{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}.quick button{flex:1;min-width:130px}
+.product-image{width:65px;height:65px;object-fit:cover;border-radius:10px;background:#f3eeee;float:right;margin-left:10px}
+.item-image{width:100%;height:155px;object-fit:cover;border-radius:10px;background:#f3eeee;margin-bottom:10px}
+.modal-backdrop{display:none;position:fixed;inset:0;background:#170c0dcc;z-index:50;align-items:center;justify-content:center;padding:15px}
+.modal-backdrop.open{display:flex}.modal{width:100%;max-width:480px;max-height:90vh;overflow:auto;background:white;border-radius:17px;padding:20px;box-shadow:0 15px 50px #0004}
+.modal-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:15px}.modal-head h3{margin:0;color:var(--wine)}
+.close{border:0;background:#f5eeee;color:var(--wine);border-radius:8px;width:35px;height:35px;font-size:20px}
+.modal-actions{display:flex;gap:9px;margin-top:18px}.modal-actions button{flex:1}
+footer{text-align:center;padding:25px;color:#978d90;font-size:12px}
+hr{border:0;border-top:1px solid var(--line);margin:17px 0}.loading{color:var(--muted);font-size:13px;padding:15px}
+.preview{width:100%;max-height:190px;object-fit:contain;background:#f5f1ef;border-radius:10px;margin-top:8px}
+@media(max-width:850px){.sidebar{width:195px}main{padding:18px}.cards{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:650px){
+ header{height:58px;padding:0 12px}.brand{font-size:17px}.owner-label{display:none}
+ .layout{display:block}.sidebar{width:100%;height:auto;position:sticky;top:58px;z-index:15;display:flex;overflow-x:auto;padding:7px;background:white;border-bottom:1px solid var(--line);gap:4px}
+ .nav-title{display:none}.sidebar button{width:auto;min-width:max-content;padding:10px 12px;font-size:12px;margin:0}
+ main{padding:15px 12px}.cards{gap:9px}.stat{padding:13px}.stat-number{font-size:23px}.stat-icon{width:32px;height:32px}
+ .list{grid-template-columns:1fr}.page-head h1{font-size:20px}.login{margin:35px auto}
+}
+</style>
+</head>
+<body>
+
+<header>
+ <div class="brand">🛒 SUGU <span>MARCHÉ</span></div>
+ <div class="header-right">
+  <span class="owner-label">ESPACE PROPRIÉTAIRE</span>
+  <button id="logout" class="btn light small" style="display:none">Déconnexion</button>
+ </div>
+</header>
+
+<div id="login" class="login">
+ <div class="login-logo">🛒</div>
+ <h2>Super Admin SUGU</h2>
+ <p>Connecte-toi pour gérer ta plateforme.</p>
+ <form id="loginForm">
+  <div class="field"><label>Adresse e-mail</label><input id="email" type="email" required placeholder="Ton adresse e-mail"></div>
+  <div class="field"><label>Mot de passe</label><input id="password" type="password" required placeholder="Ton mot de passe"></div>
+  <button class="btn" style="width:100%">Se connecter</button>
+ </form>
+ <p id="loginMessage"></p>
+</div>
+
+<div id="app">
+<div class="layout">
+<nav class="sidebar">
+ <div class="nav-title">GESTION PRINCIPALE</div>
+ <button class="active" data-page="dashboard">📊 Tableau de bord</button>
+ <button data-page="requests">📩 Demandes</button>
+ <button data-page="shops">🏪 Boutiques</button>
+ <button data-page="merchants">👥 Commerçants</button>
+ <button data-page="products">📦 Produits</button>
+ <button data-page="categories">🗂️ Catégories</button>
+ <button data-page="banners">🖼️ Bannières accueil</button>
+ <button data-page="orders">🛍️ Commandes</button>
+ <button data-page="clients">👤 Clients</button>
+ <div class="nav-title">ABONNEMENTS ET FINANCES</div>
+ <button data-page="subscriptions">📅 Abonnements</button>
+ <button data-page="payments">💰 Paiements</button>
+ <button data-page="finances">📈 Finances</button>
+ <div class="nav-title">PLATEFORME</div>
+ <button data-page="history">📜 Historique</button>
+ <button data-page="settings">⚙️ Paramètres</button>
+</nav>
+
+<main>
+<div id="message"></div>
+
+<section id="dashboard">
+ <div class="page-head">
+  <div><h1>Tableau de bord</h1><p>Bienvenue dans ton espace de gestion.</p></div>
+  <button class="btn gold" onclick="loadAll()">↻ Actualiser</button>
+ </div>
+ <div class="cards">
+  <div class="stat"><div class="stat-top"><span class="stat-name">Demandes en attente</span><span class="stat-icon">📩</span></div><div class="stat-number" id="statRequests">—</div><div class="stat-note">À vérifier et traiter</div></div>
+  <div class="stat"><div class="stat-top"><span class="stat-name">Boutiques</span><span class="stat-icon">🏪</span></div><div class="stat-number" id="statShops">—</div><div class="stat-note">Toutes les boutiques</div></div>
+  <div class="stat"><div class="stat-top"><span class="stat-name">Commerçants</span><span class="stat-icon">👥</span></div><div class="stat-number" id="statMerchants">—</div><div class="stat-note">Comptes commerçants</div></div>
+  <div class="stat"><div class="stat-top"><span class="stat-name">Produits</span><span class="stat-icon">📦</span></div><div class="stat-number" id="statProducts">—</div><div class="stat-note">Produits enregistrés</div></div>
+  <div class="stat"><div class="stat-top"><span class="stat-name">Abonnements actifs</span><span class="stat-icon">📅</span></div><div class="stat-number" id="statSubs">—</div><div class="stat-note">Abonnements en cours</div></div>
+  <div class="stat"><div class="stat-top"><span class="stat-name">Commandes</span><span class="stat-icon">🛍️</span></div><div class="stat-number" id="statOrders">—</div><div class="stat-note">Toutes les commandes</div></div>
+ </div>
+ <div class="panel" style="margin-top:20px">
+  <h3>Accès rapide</h3><p>Choisis une rubrique pour gérer ton marché.</p>
+  <div class="quick">
+   <button class="btn" onclick="goPage('requests')">Voir les demandes</button>
+   <button class="btn gold" onclick="goPage('shops')">Gérer les boutiques</button>
+   <button class="btn light" onclick="goPage('products')">Gérer les produits</button>
+  </div>
+ </div>
+</section>
+
+<section id="requests" hidden>
+ <div class="page-head"><div><h1>Demandes de boutiques</h1><p>Vérifie le paiement avant toute approbation.</p></div></div>
+ <div class="toolbar"><input id="searchRequests" placeholder="Rechercher une demande..."></div>
+ <div id="requestList" class="list"><p class="loading">Chargement...</p></div>
+</section>
+
+<section id="shops" hidden>
+ <div class="page-head"><div><h1>Boutiques</h1><p>Consulte et contrôle les boutiques inscrites.</p></div></div>
+ <div class="toolbar"><input id="searchShops" placeholder="Nom, téléphone ou ville..."></div>
+ <div id="shopList" class="list"></div>
+</section>
+
+<section id="merchants" hidden>
+ <div class="page-head"><div><h1>Commerçants</h1><p>Liste des comptes commerçants.</p></div></div>
+ <div class="toolbar"><input id="searchMerchants" placeholder="Rechercher un commerçant..."></div>
+ <div id="merchantList" class="list"></div>
+</section>
+
+<section id="products" hidden>
+ <div class="page-head"><div><h1>Produits</h1><p>Modifie les informations et la visibilité des produits.</p></div></div>
+ <div class="toolbar"><input id="searchProducts" placeholder="Nom d'un produit..."></div>
+ <div id="productList" class="list"></div>
+</section>
+
+<section id="categories" hidden>
+ <div class="page-head"><div><h1>Catégories</h1><p>Ajoute une photo à chaque catégorie.</p></div><button class="btn gold" onclick="addCategory()">＋ Ajouter</button></div>
+ <div class="toolbar"><input id="searchCategories" placeholder="Rechercher une catégorie..."></div>
+ <div id="categoryList" class="list"></div>
+</section>
+
+<section id="banners" hidden>
+ <div class="page-head"><div><h1>Bannières de la page d'accueil</h1><p>Gère les grandes images affichées sur la page d'accueil de SUGU.</p></div><button class="btn gold" onclick="addBanner()">＋ Ajouter une bannière</button></div>
+ <div class="panel"><p>Choisis une image depuis la galerie de ton téléphone. Les images seront enregistrées dans le stockage Supabase « Sugu ».</p></div>
+ <div id="bannerList" class="list"></div>
+</section>
+
+<section id="orders" hidden>
+ <div class="page-head"><div><h1>Commandes</h1><p>Consulte les commandes des clients.</p></div></div>
+ <div class="toolbar"><input id="searchOrders" placeholder="Nom, téléphone ou numéro de commande..."></div>
+ <div id="orderList" class="list"></div>
+</section>
+
+<section id="clients" hidden>
+ <div class="page-head"><div><h1>Clients</h1><p>Comptes clients enregistrés dans la plateforme.</p></div></div>
+ <div class="toolbar"><input id="searchClients" placeholder="Nom ou téléphone..."></div>
+ <div id="clientList" class="list"></div>
+</section>
+
+<section id="subscriptions" hidden>
+ <div class="page-head"><div><h1>Abonnements</h1><p>Suivi des formules des boutiques.</p></div></div>
+ <div class="toolbar"><input id="searchSubscriptions" placeholder="Rechercher une boutique..."></div>
+ <div id="subscriptionList" class="list"></div>
+</section>
+
+<section id="payments" hidden>
+ <div class="page-head"><div><h1>Paiements</h1><p>Historique des paiements enregistrés.</p></div></div>
+ <div class="toolbar"><input id="searchPayments" placeholder="Boutique, référence ou méthode..."></div>
+ <div id="paymentList" class="list"></div>
+</section>
+
+<section id="finances" hidden>
+ <div class="page-head"><div><h1>Finances</h1><p>Montants des paiements enregistrés.</p></div></div>
+ <div class="cards">
+  <div class="stat"><div class="stat-name">Total enregistré</div><div class="stat-number" id="financeTotal">0</div><div class="stat-note">FCFA</div></div>
+  <div class="stat"><div class="stat-name">Nombre de paiements</div><div class="stat-number" id="financeCount">0</div></div>
+ </div>
+ <div id="financeList"></div>
+</section>
+
+<section id="history" hidden>
+ <div class="page-head"><div><h1>Historique administratif</h1><p>Les actions du propriétaire enregistrées.</p></div></div>
+ <div id="historyList"></div>
+</section>
+
+<section id="settings" hidden>
+ <div class="page-head"><div><h1>Paramètres</h1><p>Informations générales de la plateforme.</p></div></div>
+ <div class="panel">
+  <h3>🛒 SUGU</h3><p><b>Slogan :</b> Votre marché, partout au Mali.</p><p><b>Crédit :</b> MOH-TECH</p>
+  <hr><h3>Tarifs des abonnements</h3><p>7 jours : <b>3 000 FCFA</b></p><p>30 jours : <b>8 000 FCFA</b></p>
+  <hr><h3>Sécurité du compte</h3><p>Seul un compte dont le rôle Supabase est <b>owner</b> peut accéder à cet espace.</p>
+  <p>Ne partage jamais ton mot de passe ni une clé secrète Supabase.</p>
+  <button class="btn light" onclick="resetPassword()">Changer mon mot de passe</button>
+ </div>
+</section>
+</main>
+</div>
+</div>
+
+<div id="modalBackdrop" class="modal-backdrop">
+ <div class="modal">
+  <div class="modal-head"><h3 id="modalTitle">Modifier</h3><button class="close" onclick="closeModal()">×</button></div>
+  <form id="modalForm">
+   <div id="modalBody"></div>
+   <div class="modal-actions">
+    <button type="button" class="btn light" onclick="closeModal()">Annuler</button>
+    <button type="submit" class="btn gold" id="modalSave">Enregistrer</button>
+   </div>
+  </form>
+ </div>
+</div>
+
+<footer>SUGU — Votre marché, partout au Mali<br>MOH-TECH</footer>
+
+<script>
+const SUPABASE_URL="https://yujcrcfkykgzjkmiqczu.supabase.co";
+const SUPABASE_KEY="sb_publishable_-tpy193fdXgtyBk6zVTO0w_OmAIcoAP";
+const BUCKET="Sugu";
+const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+const $=id=>document.getElementById(id);
+
+let modalAction=null;
+let categoryCache=[];
+let shopCache=[];
+let bannerCache=[];
+
+function safe(v){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));}
+function money(v){return Number(v||0).toLocaleString("fr-FR")+" FCFA";}
+function date(v){return v?new Date(v).toLocaleString("fr-FR"):"-";}
+function message(t,type=""){const el=$("message");el.textContent=t;el.className="show "+type;}
+function hideMessage(){$("message").className="";}
+function empty(){return '<div class="empty">Aucune donnée disponible.</div>';}
+function showList(id,html){$(id).innerHTML=html||empty();}
+function badge(status){
+ const s=String(status||"").toLowerCase();let cls="badge";
+ if(["active","approved","paid","delivered","verified"].includes(s))cls+=" good";
+ else if(["pending","waiting","processing"].includes(s))cls+=" wait";
+ else if(["rejected","suspended","cancelled","inactive"].includes(s))cls+=" bad";
+ return `<span class="${cls}">${safe(status||"Non défini")}</span>`;
+}
+
+function goPage(page){
+ document.querySelectorAll("main section").forEach(s=>s.hidden=true);
+ $(page).hidden=false;
+ document.querySelectorAll(".sidebar button").forEach(b=>b.classList.toggle("active",b.dataset.page===page));
+ hideMessage();
+}
+document.querySelectorAll(".sidebar button").forEach(b=>b.addEventListener("click",()=>goPage(b.dataset.page)));
+
+function openModal(title,html,callback){
+ $("modalTitle").textContent=title;$("modalBody").innerHTML=html;modalAction=callback;$("modalBackdrop").classList.add("open");
+}
+function closeModal(){$("modalBackdrop").classList.remove("open");$("modalForm").reset();modalAction=null;}
+$("modalBackdrop").addEventListener("click",e=>{if(e.target===$("modalBackdrop"))closeModal();});
+$("modalForm").addEventListener("submit",async e=>{
+ e.preventDefault();if(!modalAction)return;
+ const btn=$("modalSave");btn.disabled=true;btn.textContent="Enregistrement...";
+ try{await modalAction(new FormData($("modalForm")));closeModal();}
+ catch(err){message("Erreur : "+err.message,"error");}
+ finally{btn.disabled=false;btn.textContent="Enregistrer";}
+});
+
+$("loginForm").addEventListener("submit",async e=>{
+ e.preventDefault();$("loginMessage").textContent="Connexion en cours...";
+ const {error}=await db.auth.signInWithPassword({email:$("email").value.trim(),password:$("password").value});
+ if(error){$("loginMessage").textContent="Connexion impossible : "+error.message;return;}
+ await checkOwner();
+});
+
+async function checkOwner(){
+ const {data:{user},error:userError}=await db.auth.getUser();
+ if(userError||!user){$("login").style.display="block";$("app").style.display="none";$("logout").style.display="none";return;}
+ const {data:profile,error}=await db.from("profiles").select("role,full_name").eq("id",user.id).single();
+ if(error||profile?.role!=="owner"){await db.auth.signOut();$("loginMessage").textContent="Ce compte n'a pas les droits Super Admin.";return;}
+ $("login").style.display="none";$("app").style.display="block";$("logout").style.display="block";
+ message("Bienvenue "+(profile.full_name||"propriétaire")+".","success");await loadAll();
+}
+$("logout").onclick=async()=>{await db.auth.signOut();location.reload();};
+
+async function resetPassword(){
+ const {data:{user}}=await db.auth.getUser();if(!user?.email)return message("Adresse e-mail introuvable.","error");
+ const {error}=await db.auth.resetPasswordForEmail(user.email);
+ if(error)return message(error.message,"error");
+ message("Un lien de changement de mot de passe a été envoyé à ton adresse e-mail.","success");
+}
+async function logAction(action,entity,id,details={}){
+ const {data:{user}}=await db.auth.getUser();if(!user)return;
+ const {error}=await db.from("admin_logs").insert({actor_id:user.id,action,entity,entity_id:id||null,details});
+ if(error)console.warn("Historique non enregistré :",error.message);
+}
+async function countTable(table,filter){
+ let q=db.from(table).select("*",{count:"exact",head:true});if(filter)q=q.eq(filter.column,filter.value);
+ const {count,error}=await q;if(error)throw error;return count||0;
+}
+async function loadAll(){
+ message("Actualisation des données...");
+ const jobs=[
+  async()=>{
+   const [a,b,c,d,e,f]=await Promise.all([
+    countTable("subscription_requests",{column:"status",value:"pending"}),countTable("shops"),
+    countTable("profiles",{column:"role",value:"merchant"}),countTable("products"),
+    countTable("subscriptions",{column:"status",value:"active"}),countTable("orders")
+   ]);
+   $("statRequests").textContent=a;$("statShops").textContent=b;$("statMerchants").textContent=c;
+   $("statProducts").textContent=d;$("statSubs").textContent=e;$("statOrders").textContent=f;
+  },
+  loadRequests,loadShops,loadMerchants,loadProducts,loadCategories,loadBanners,
+  loadOrders,loadClients,loadSubscriptions,loadPayments,loadFinances,loadHistory
+ ];
+ const results=await Promise.allSettled(jobs.map(fn=>fn()));
+ const failed=results.filter(r=>r.status==="rejected");
+ if(failed.length)message("Certaines rubriques n'ont pas pu être actualisées. Ouvre la rubrique concernée pour voir l'erreur.","error");
+ else message("Toutes les données ont été actualisées.","success");
+}
+function filterList(inputId,listId){
+ const input=$(inputId);if(!input)return;
+ input.addEventListener("input",()=>{
+  const term=input.value.toLowerCase().trim();
+  $(listId).querySelectorAll(".panel").forEach(card=>card.style.display=card.textContent.toLowerCase().includes(term)?"":"none");
+ });
+}
+async function review(id,decision){
+ const question=decision==="approved"?"As-tu vérifié le dépôt Orange Money avant de confirmer cette demande ?":"Veux-tu vraiment refuser cette demande ?";
+ if(!confirm(question))return;
+ message("Traitement de la demande...");
+ const {data,error}=await db.rpc("review_subscription_request",{p_request_id:id,p_decision:decision});
+ if(error)return message("Erreur : "+error.message,"error");
+ await logAction("Demande "+decision,"subscription_request",id);
+ message(typeof data==="string"?data:"Demande traitée.","success");await loadAll();
+}
+
+async function loadRequests(){
+ const {data,error}=await db.from("subscription_requests").select("id,plan,amount,payment_method,payment_reference,status,created_at,shops(name,phone,city)").order("created_at",{ascending:false});
+ if(error)throw error;
+ showList("requestList",(data||[]).map(r=>`
+ <div class="panel"><div class="panel-head"><b>${safe(r.shops?.name||"Boutique")}</b>${badge(r.status)}</div>
+ <p>Téléphone : ${safe(r.shops?.phone||"-")}</p><p>Ville : ${safe(r.shops?.city||"-")}</p>
+ <p>Formule : ${r.plan==="weekly"?"7 jours":safe(r.plan)}</p><p>Montant : <b>${money(r.amount)}</b></p>
+ <p>Paiement : ${safe(r.payment_method)}</p><p>Référence : ${safe(r.payment_reference||"-")}</p><p>${date(r.created_at)}</p>
+ ${r.status==="pending"?`<div class="actions"><button class="btn green small" onclick="review('${r.id}','approved')">✓ Approuver</button><button class="btn danger small" onclick="review('${r.id}','rejected')">Refuser</button></div>`:""}
+ </div>`).join(""));
+ filterList("searchRequests","requestList");
+}
+
+async function loadShops(){
+ const {data,error}=await db.from("shops").select("id,name,phone,city,status,created_at,owner_id").order("created_at",{ascending:false});
+ if(error)throw error;shopCache=data||[];
+ showList("shopList",shopCache.map(s=>`<div class="panel"><div class="panel-head"><b>🏪 ${safe(s.name)}</b>${badge(s.status)}</div>
+ <p>Téléphone : ${safe(s.phone||"-")}</p><p>Ville : ${safe(s.city||"-")}</p><p>Création : ${date(s.created_at)}</p>
+ <div class="actions"><button class="btn gold small" onclick="editShop('${s.id}')">Modifier le statut</button></div></div>`).join(""));
+ filterList("searchShops","shopList");
+}
+function editShop(id){
+ const s=shopCache.find(x=>x.id===id);if(!s)return;
+ openModal("Modifier le statut",`<div class="field"><label>Boutique</label><input value="${safe(s.name)}" disabled></div>
+ <div class="field"><label>Nouveau statut</label><select name="status" required>
+ ${[s.status,"active","pending","suspended"].filter((v,i,a)=>v&&a.indexOf(v)===i).map(v=>`<option value="${safe(v)}" ${v===s.status?"selected":""}>${safe(v)}</option>`).join("")}
+ </select></div>`,async form=>{
+  const status=form.get("status");const {error}=await db.from("shops").update({status}).eq("id",id);if(error)throw error;
+  await logAction("Modification statut boutique","shops",id,{status});message("Statut de la boutique modifié.","success");await loadAll();
+ });
+}
+
+async function loadMerchants(){
+ const {data,error}=await db.from("profiles").select("id,full_name,phone,role,created_at").eq("role","merchant").order("created_at",{ascending:false});
+ if(error)throw error;
+ const {data:shops,error:shopError}=await db.from("shops").select("owner_id,name,status");if(shopError)throw shopError;
+ showList("merchantList",(data||[]).map(m=>{
+  const owned=(shops||[]).filter(s=>s.owner_id===m.id);
+  return `<div class="panel"><b>👤 ${safe(m.full_name||"Commerçant sans nom")}</b><p>Téléphone : ${safe(m.phone||"-")}</p><p>Compte créé : ${date(m.created_at)}</p><p>Boutiques : <b>${owned.length}</b></p>${owned.map(s=>`<p>🏪 ${safe(s.name)} — ${badge(s.status)}</p>`).join("")}</div>`;
+ }).join(""));
+ filterList("searchMerchants","merchantList");
+}
+
+async function loadProducts(){
+ const {data,error}=await db.from("products").select("id,name,description,price,stock,image_url,is_active,shop_id,category_id").order("created_at",{ascending:false});
+ if(error)throw error;
+ const {data:shops}=await db.from("shops").select("id,name");const shopMap=Object.fromEntries((shops||[]).map(s=>[s.id,s.name]));
+ showList("productList",(data||[]).map(p=>`<div class="panel">
+ ${p.image_url?`<img class="product-image" src="${safe(p.image_url)}" alt="">`:""}
+ <b>${safe(p.name)}</b><p>Boutique : ${safe(shopMap[p.shop_id]||"Boutique")}</p>
+ <p>Prix : <b>${money(p.price)}</b></p><p>Stock : ${safe(p.stock)}</p><p>État : ${badge(p.is_active?"active":"inactive")}</p>
+ <div class="actions"><button class="btn gold small" onclick="editProduct('${p.id}')">Modifier</button>
+ <button class="btn light small" onclick="toggleProduct('${p.id}',${p.is_active})">${p.is_active?"Désactiver":"Activer"}</button>
+ <button class="btn danger small" onclick="deleteProduct('${p.id}')">Supprimer</button></div></div>`).join(""));
+ filterList("searchProducts","productList");
+}
+
+async function uploadImage(file,folder){
+ if(!file)throw new Error("Choisis une image dans ta galerie.");
+ const allowed=["image/jpeg","image/png","image/webp","image/gif"];
+ if(!allowed.includes(file.type))throw new Error("Format accepté : JPG, PNG, WEBP ou GIF.");
+ if(file.size>5*1024*1024)throw new Error("L'image dépasse 5 Mo. Choisis une image plus légère.");
+ const {data:{user},error:userError}=await db.auth.getUser();if(userError||!user)throw new Error("Reconnecte-toi.");
+ const ext=(file.name.split(".").pop()||"jpg").toLowerCase().replace(/[^a-z0-9]/g,"")||"jpg";
+ const path=`${user.id}/${folder}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+ const {error}=await db.storage.from(BUCKET).upload(path,file,{upsert:false,contentType:file.type});
+ if(error)throw error;
+ const {data}=db.storage.from(BUCKET).getPublicUrl(path);
+ return data.publicUrl;
+}
+function imageField(name,label,current=""){
+ return `<div class="field"><label>${label}</label><input type="file" name="${name}" accept="image/jpeg,image/png,image/webp,image/gif"><small>Formats JPG, PNG, WEBP ou GIF — maximum 5 Mo.</small>
+ ${current?`<img class="preview" src="${safe(current)}" alt="Image actuelle">`:""}</div>`;
+}
+
+async function editProduct(id){
+ const {data:p,error}=await db.from("products").select("id,name,description,price,stock,image_url,is_active,category_id").eq("id",id).single();
+ if(error)return message(error.message,"error");
+ const {data:cats}=await db.from("categories").select("id,name").order("name");
+ openModal("Modifier le produit",`
+ <div class="field"><label>Nom du produit</label><input name="name" required value="${safe(p.name)}"></div>
+ <div class="field"><label>Description</label><textarea name="description">${safe(p.description||"")}</textarea></div>
+ <div class="field"><label>Prix (FCFA)</label><input name="price" type="number" min="0" step="1" required value="${safe(p.price)}"></div>
+ <div class="field"><label>Stock</label><input name="stock" type="number" min="0" step="1" value="${safe(p.stock??0)}"></div>
+ <div class="field"><label>Catégorie</label><select name="category_id"><option value="">Sans catégorie</option>${(cats||[]).map(c=>`<option value="${c.id}" ${c.id===p.category_id?"selected":""}>${safe(c.name)}</option>`).join("")}</select></div>
+ ${imageField("image_file","Changer la photo du produit",p.image_url)}
+ <div class="field"><label>Ou adresse de la photo (URL)</label><input name="image_url" type="url" value="${safe(p.image_url||"")}" placeholder="https://..."></div>
+ <div class="field"><label>Visibilité</label><select name="is_active"><option value="true" ${p.is_active?"selected":""}>Actif</option><option value="false" ${!p.is_active?"selected":""}>Inactif</option></select></div>
+ `,async form=>{
+  const category=form.get("category_id");let image_url=String(form.get("image_url")||"").trim()||null;
+  const file=form.get("image_file");if(file&&file.size)image_url=await uploadImage(file,"products");
+  const update={name:String(form.get("name")).trim(),description:String(form.get("description")||"").trim(),price:Number(form.get("price")),stock:Number(form.get("stock")||0),category_id:category||null,image_url,is_active:form.get("is_active")==="true"};
+  if(!update.name||!Number.isFinite(update.price)||update.price<0||!Number.isFinite(update.stock)||update.stock<0)throw new Error("Vérifie le nom, le prix et le stock.");
+  const {error}=await db.from("products").update(update).eq("id",id);if(error)throw error;
+  await logAction("Modification produit","products",id,{name:update.name});message("Produit modifié avec succès.","success");await loadAll();
+ });
+}
+async function toggleProduct(id,current){
+ const {error}=await db.from("products").update({is_active:!current}).eq("id",id);
+ if(error)return message("Erreur : "+error.message,"error");
+ await logAction("Changement visibilité produit","products",id,{is_active:!current});message("Visibilité du produit mise à jour.","success");await loadAll();
+}
+async function deleteProduct(id){
+ if(!confirm("Supprimer définitivement ce produit ? Cette action ne peut pas être annulée."))return;
+ const {error}=await db.from("products").delete().eq("id",id);if(error)return message("Suppression impossible : "+error.message,"error");
+ await logAction("Suppression produit","products",id);message("Produit supprimé.","success");await loadAll();
+}
+
+async function loadCategories(){
+ const {data,error}=await db.from("categories").select("id,name,image_url,is_active,sort_order").order("sort_order");
+ if(error)throw error;categoryCache=data||[];
+ showList("categoryList",categoryCache.map(c=>`<div class="panel">
+ ${c.image_url?`<img class="item-image" src="${safe(c.image_url)}" alt="">`:""}
+ <div class="panel-head"><b>🗂️ ${safe(c.name)}</b>${badge(c.is_active?"active":"inactive")}</div>
+ <p>Ordre d'affichage : ${safe(c.sort_order)}</p>
+ <div class="actions"><button class="btn gold small" onclick="editCategory('${c.id}')">Modifier</button>
+ <button class="btn light small" onclick="toggleCategory('${c.id}',${c.is_active})">${c.is_active?"Désactiver":"Activer"}</button></div></div>`).join(""));
+ filterList("searchCategories","categoryList");
+}
+function addCategory(){
+ openModal("Ajouter une catégorie",`
+ <div class="field"><label>Nom de la catégorie</label><input name="name" required placeholder="Exemple : Vêtements"></div>
+ <div class="field"><label>Ordre d'affichage</label><input name="sort_order" type="number" value="0"></div>
+ ${imageField("image_file","Photo de la catégorie")}
+ `,async form=>{
+  const name=String(form.get("name")).trim();const sort_order=Number(form.get("sort_order")||0);
+  if(!name)throw new Error("Entre le nom de la catégorie.");
+  let image_url=null;const file=form.get("image_file");if(file&&file.size)image_url=await uploadImage(file,"categories");
+  const {data,error}=await db.from("categories").insert({name,image_url,is_active:true,sort_order}).select("id").single();
+  if(error)throw error;await logAction("Création catégorie","categories",data.id,{name});
+  message("Catégorie ajoutée.","success");await loadCategories();
+ });
+}
+function editCategory(id){
+ const c=categoryCache.find(x=>x.id===id);if(!c)return;
+ openModal("Modifier la catégorie",`
+ <div class="field"><label>Nom</label><input name="name" required value="${safe(c.name)}"></div>
+ <div class="field"><label>Ordre d'affichage</label><input name="sort_order" type="number" value="${safe(c.sort_order)}"></div>
+ ${imageField("image_file","Changer la photo de la catégorie",c.image_url)}
+ `,async form=>{
+  const name=String(form.get("name")).trim();const sort_order=Number(form.get("sort_order")||0);
+  if(!name)throw new Error("Le nom est obligatoire.");
+  const update={name,sort_order};const file=form.get("image_file");if(file&&file.size)update.image_url=await uploadImage(file,"categories");
+  const {error}=await db.from("categories").update(update).eq("id",id);if(error)throw error;
+  await logAction("Modification catégorie","categories",id,{name});message("Catégorie modifiée.","success");await loadCategories();
+ });
+}
+async function toggleCategory(id,current){
+ const {error}=await db.from("categories").update({is_active:!current}).eq("id",id);
+ if(error)return message("Erreur : "+error.message,"error");
+ await logAction("Modification catégorie","categories",id,{is_active:!current});message("Catégorie mise à jour.","success");await loadCategories();
+}
+
+async function loadBanners(){
+ const {data,error}=await db.from("homepage_banners").select("id,title,subtitle,image_url,link_url,is_active,sort_order,created_at").order("sort_order",{ascending:true});
+ if(error)throw error;bannerCache=data||[];
+ showList("bannerList",bannerCache.map(b=>`<div class="panel">
+ <img class="item-image" src="${safe(b.image_url)}" alt="Bannière">
+ <div class="panel-head"><b>${safe(b.title||"Bannière sans titre")}</b>${badge(b.is_active?"active":"inactive")}</div>
+ <p>${safe(b.subtitle||"")}</p><p>Ordre : ${safe(b.sort_order)}</p>
+ ${b.link_url?`<p>Lien : ${safe(b.link_url)}</p>`:""}
+ <div class="actions"><button class="btn gold small" onclick="editBanner('${b.id}')">Modifier</button>
+ <button class="btn light small" onclick="toggleBanner('${b.id}',${b.is_active})">${b.is_active?"Désactiver":"Activer"}</button>
+ <button class="btn danger small" onclick="deleteBanner('${b.id}')">Supprimer</button></div></div>`).join(""));
+}
+function bannerForm(b={}){
+ return `<div class="field"><label>Titre</label><input name="title" value="${safe(b.title||"")}" placeholder="Exemple : Bienvenue sur SUGU"></div>
+ <div class="field"><label>Sous-titre</label><textarea name="subtitle" placeholder="Texte affiché sur la bannière">${safe(b.subtitle||"")}</textarea></div>
+ ${imageField("image_file",b.image_url?"Changer l'image de la bannière":"Photo de la bannière",b.image_url)}
+ <div class="field"><label>Lien facultatif</label><input name="link_url" type="url" value="${safe(b.link_url||"")}" placeholder="https://..."></div>
+ <div class="field"><label>Ordre d'affichage</label><input name="sort_order" type="number" value="${safe(b.sort_order??0)}"></div>
+ <div class="field"><label>Visibilité</label><select name="is_active"><option value="true" ${b.is_active!==false?"selected":""}>Active</option><option value="false" ${b.is_active===false?"selected":""}>Désactivée</option></select></div>`;
+}
+function addBanner(){
+ openModal("Ajouter une bannière",bannerForm({is_active:true,sort_order:0}),async form=>{
+  const file=form.get("image_file");if(!file||!file.size)throw new Error("Choisis une image pour la bannière.");
+  const image_url=await uploadImage(file,"banners");
+  const record={title:String(form.get("title")||"").trim(),subtitle:String(form.get("subtitle")||"").trim(),image_url,link_url:String(form.get("link_url")||"").trim()||null,sort_order:Number(form.get("sort_order")||0),is_active:form.get("is_active")==="true"};
+  const {data,error}=await db.from("homepage_banners").insert(record).select("id").single();if(error)throw error;
+  await logAction("Création bannière","homepage_banners",data.id,{title:record.title});message("Bannière ajoutée.","success");await loadBanners();
+ });
+}
+function editBanner(id){
+ const b=bannerCache.find(x=>x.id===id);if(!b)return;
+ openModal("Modifier la bannière",bannerForm(b),async form=>{
+  const update={title:String(form.get("title")||"").trim(),subtitle:String(form.get("subtitle")||"").trim(),link_url:String(form.get("link_url")||"").trim()||null,sort_order:Number(form.get("sort_order")||0),is_active:form.get("is_active")==="true"};
+  const file=form.get("image_file");if(file&&file.size)update.image_url=await uploadImage(file,"banners");
+  const {error}=await db.from("homepage_banners").update(update).eq("id",id);if(error)throw error;
+  await logAction("Modification bannière","homepage_banners",id,{title:update.title});message("Bannière modifiée.","success");await loadBanners();
+ });
+}
+async function toggleBanner(id,current){
+ const {error}=await db.from("homepage_banners").update({is_active:!current}).eq("id",id);
+ if(error)return message("Erreur : "+error.message,"error");
+ await logAction("Changement visibilité bannière","homepage_banners",id,{is_active:!current});message("Visibilité de la bannière mise à jour.","success");await loadBanners();
+}
+async function deleteBanner(id){
+ if(!confirm("Supprimer cette bannière ?"))return;
+ const {error}=await db.from("homepage_banners").delete().eq("id",id);if(error)return message("Suppression impossible : "+error.message,"error");
+ await logAction("Suppression bannière","homepage_banners",id);message("Bannière supprimée.","success");await loadBanners();
+}
+
+async function loadOrders(){
+ const {data,error}=await db.from("orders").select("id,customer_name,customer_phone,delivery_address,total,status,created_at").order("created_at",{ascending:false});
+ if(error)throw error;
+ showList("orderList",(data||[]).map(o=>`<div class="panel"><div class="panel-head"><b>Commande #${safe(String(o.id).slice(0,8))}</b>${badge(o.status)}</div>
+ <p>Client : ${safe(o.customer_name)}</p><p>Téléphone : ${safe(o.customer_phone)}</p><p>Adresse : ${safe(o.delivery_address)}</p>
+ <p>Total : <b>${money(o.total)}</b></p><p>${date(o.created_at)}</p>
+ <button class="btn gold small" onclick="changeOrderStatus('${o.id}','${safe(o.status)}')">Modifier le statut</button></div>`).join(""));
+ filterList("searchOrders","orderList");
+}
+function changeOrderStatus(id,current){
+ openModal("Modifier le statut de la commande",`<div class="field"><label>Statut actuel</label><input value="${safe(current)}" disabled></div>
+ <div class="field"><label>Nouveau statut</label><input name="status" required value="${safe(current)}" placeholder="Exemple : confirmed"></div>
+ <p>Utilise les statuts déjà employés par ton système de commandes.</p>`,async form=>{
+  const status=String(form.get("status")).trim();if(!status)throw new Error("Le statut est obligatoire.");
+  const {error}=await db.from("orders").update({status}).eq("id",id);if(error)throw error;
+  await logAction("Modification commande","orders",id,{status});message("Commande mise à jour.","success");await loadOrders();
+ });
+}
+async function loadClients(){
+ const {data,error}=await db.from("profiles").select("id,full_name,phone,role,created_at").order("created_at",{ascending:false});if(error)throw error;
+ const clients=(data||[]).filter(p=>p.role!=="owner"&&p.role!=="merchant");
+ showList("clientList",clients.map(c=>`<div class="panel"><b>👤 ${safe(c.full_name||"Client sans nom")}</b><p>Téléphone : ${safe(c.phone||"-")}</p><p>Rôle : ${safe(c.role||"-")}</p><p>Inscription : ${date(c.created_at)}</p></div>`).join(""));
+ filterList("searchClients","clientList");
+}
+async function loadSubscriptions(){
+ const {data,error}=await db.from("subscriptions").select("id,plan,amount,status,starts_at,ends_at,shops(name)").order("created_at",{ascending:false});if(error)throw error;
+ showList("subscriptionList",(data||[]).map(s=>`<div class="panel"><div class="panel-head"><b>🏪 ${safe(s.shops?.name||"Boutique")}</b>${badge(s.status)}</div>
+ <p>Formule : ${safe(s.plan)}</p><p>Montant : <b>${money(s.amount)}</b></p><p>Début : ${date(s.starts_at)}</p><p>Fin : ${date(s.ends_at)}</p></div>`).join(""));
+ filterList("searchSubscriptions","subscriptionList");
+}
+async function loadPayments(){
+ const {data,error}=await db.from("payments").select("id,amount,method,reference,status,created_at,shops(name)").order("created_at",{ascending:false});if(error)throw error;
+ showList("paymentList",(data||[]).map(p=>`<div class="panel"><div class="panel-head"><b>${safe(p.shops?.name||"Boutique")}</b>${badge(p.status)}</div>
+ <p>Montant : <b>${money(p.amount)}</b></p><p>Méthode : ${safe(p.method)}</p><p>Référence : ${safe(p.reference||"-")}</p><p>${date(p.created_at)}</p></div>`).join(""));
+ filterList("searchPayments","paymentList");
+}
+async function loadFinances(){
+ const {data,error}=await db.from("payments").select("amount,status,created_at");if(error)throw error;
+ const total=(data||[]).reduce((sum,p)=>sum+Number(p.amount||0),0);
+ $("financeTotal").textContent=Number(total).toLocaleString("fr-FR");$("financeCount").textContent=(data||[]).length;
+ showList("financeList",data?.length?`<div class="panel"><h3>Derniers paiements enregistrés</h3>${data.slice(0,10).map(p=>`<p>${money(p.amount)} — ${safe(p.status)} — ${date(p.created_at)}</p>`).join("")}</div>`:"");
+}
+async function loadHistory(){
+ const {data,error}=await db.from("admin_logs").select("id,action,entity,entity_id,details,created_at").order("created_at",{ascending:false}).limit(100);if(error)throw error;
+ showList("historyList",(data||[]).map(l=>`<div class="panel"><b>${safe(l.action)}</b><p>Type : ${safe(l.entity)}</p><p>Identifiant : ${safe(l.entity_id)}</p><p>Détails : ${safe(JSON.stringify(l.details||{}))}</p><p>${date(l.created_at)}</p></div>`).join(""));
+}
+
+checkOwner();
+</script>
+</body>
+</html>

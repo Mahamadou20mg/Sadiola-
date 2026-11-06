@@ -1,0 +1,1572 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#087b58">
+<title>SADIOLA SUGU | Espace commerçant</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+:root{
+  --green:#087b58;
+  --green-dark:#07503c;
+  --orange:#f2a14a;
+  --cream:#f5f8f5;
+  --white:#fff;
+  --text:#252b28;
+  --muted:#747c77;
+  --border:#e4eae5;
+  --red:#c0392b;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:Arial,sans-serif;
+  background:var(--cream);
+  color:var(--text);
+}
+header{
+  background:var(--green-dark);
+  color:white;
+  padding:15px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+}
+.logo{font-size:22px;font-weight:800}
+.logo span{color:var(--orange)}
+header small{display:block;color:#dcebe4;margin-top:4px}
+.container{width:min(850px,95%);margin:20px auto 45px}
+.card{
+  background:white;
+  border:1px solid var(--border);
+  border-radius:15px;
+  padding:17px;
+  margin-bottom:15px;
+  box-shadow:0 3px 12px #00000008;
+}
+h2{font-size:21px;color:var(--green-dark);margin:0 0 9px}
+h3{font-size:17px;margin:0 0 12px}
+p{line-height:1.5}
+.muted{color:var(--muted);font-size:14px}
+label{
+  display:block;
+  font-weight:bold;
+  font-size:14px;
+  margin:13px 0 7px;
+}
+input,select,textarea{
+  width:100%;
+  padding:12px;
+  border:1px solid #d9e1db;
+  border-radius:9px;
+  background:white;
+  font-size:15px;
+  color:var(--text);
+}
+textarea{min-height:75px}
+button{
+  border:0;
+  padding:12px 15px;
+  border-radius:9px;
+  font-size:14px;
+  font-weight:bold;
+  cursor:pointer;
+}
+button:disabled{opacity:.55;cursor:wait}
+.primary{background:var(--green);color:white;width:100%;margin-top:15px}
+.secondary{background:#e9f3ed;color:var(--green-dark)}
+.orange{background:var(--orange);color:#38230d}
+.danger{background:#ffeded;color:var(--red)}
+.small-btn{padding:9px 11px}
+.hidden{display:none!important}
+.message{
+  display:none;
+  padding:12px;
+  border-radius:9px;
+  margin:12px 0;
+  font-size:14px;
+  line-height:1.5;
+}
+.message.success{display:block;background:#e8f7ed;color:#176b38}
+.message.error{display:block;background:#ffeded;color:#9b2020}
+.message.info{display:block;background:#fff4df;color:#80550b}
+.tabs{display:flex;gap:8px;margin-bottom:17px}
+.tabs button{flex:1;background:#edf1ed;color:#555}
+.tabs button.active{background:var(--green);color:white}
+.badge{
+  display:inline-block;
+  border-radius:20px;
+  padding:6px 11px;
+  font-size:12px;
+  font-weight:bold;
+  background:#fff1d6;
+  color:#805500;
+}
+.badge.active{background:#e5f7eb;color:#176b38}
+.badge.rejected{background:#ffeded;color:#a12626}
+.shop-head{
+  display:flex;
+  align-items:center;
+  gap:13px;
+}
+.shop-logo{
+  width:68px;height:68px;
+  border-radius:13px;
+  object-fit:cover;
+  background:#edf2ed;
+}
+.stats{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:10px;
+  margin-top:15px;
+}
+.stat{
+  background:#f2f7f3;
+  border-radius:11px;
+  padding:13px;
+}
+.stat strong{display:block;font-size:22px;color:var(--green)}
+.stat small{color:var(--muted)}
+.product{
+  display:flex;
+  gap:12px;
+  padding:12px 0;
+  border-bottom:1px solid var(--border);
+}
+.product:last-child{border-bottom:0}
+.product img{
+  width:95px;height:95px;
+  object-fit:cover;
+  border-radius:10px;
+  background:#eee;
+}
+.product-info{flex:1;min-width:0}
+.product-info strong{display:block;margin-bottom:5px}
+.product-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px}
+.product-actions button{padding:8px 10px;font-size:12px}
+.price{color:var(--green);font-weight:bold}
+.plan{
+  border:1px solid var(--border);
+  padding:12px;
+  border-radius:9px;
+  margin-top:9px;
+  display:flex;
+  gap:10px;
+  align-items:center;
+}
+.plan input{width:auto}
+hr{border:0;border-top:1px solid var(--border);margin:18px 0}
+.empty{
+  text-align:center;
+  padding:25px 10px;
+  color:var(--muted);
+}
+.order-card{
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:14px;
+  margin:12px 0;
+  background:#fff;
+}
+.order-top{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:8px;
+  flex-wrap:wrap;
+}
+.order-line{
+  padding:9px 0;
+  border-bottom:1px solid var(--border);
+  font-size:14px;
+  overflow-wrap:anywhere;
+}
+.order-total{
+  color:var(--green);
+  font-weight:bold;
+  font-size:17px;
+  margin-top:10px;
+}
+.order-actions{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-top:12px;
+}
+.order-actions button{flex:1}
+.order-status{
+  display:inline-block;
+  padding:6px 10px;
+  border-radius:20px;
+  background:#fff1d6;
+  color:#805500;
+  font-size:12px;
+  font-weight:bold;
+}
+.order-status.delivered{
+  background:#e5f7eb;
+  color:#176b38;
+}
+.order-status.cancelled{
+  background:#ffeded;
+  color:#a12626;
+}
+
+/* BOUTON RETOUR A L'ACCUEIL */
+.home-return{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  width:100%;
+  padding:13px 16px;
+  margin-bottom:15px;
+  border-radius:10px;
+  background:#e9f3ed;
+  color:var(--green-dark);
+  text-decoration:none;
+  font-size:15px;
+  font-weight:bold;
+  border:1px solid #d4e7da;
+}
+.home-return:active{
+  background:#dcece1;
+  transform:scale(.99);
+}
+
+footer{text-align:center;color:var(--muted);padding:20px;font-size:13px}
+footer strong{color:var(--green-dark)}
+@media(max-width:450px){
+  .product img{width:82px;height:82px}
+  .product-actions button{font-size:11px}
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div>
+    <div class="logo">🛒 SADIOLA <span>SUGU</span></div>
+    <small>Votre marché, partout au Mali</small>
+  </div>
+  <button id="logoutBtn" class="secondary hidden" onclick="logout()">Déconnexion</button>
+</header>
+
+<main class="container">
+
+  <!-- RETOUR VERS LA PAGE D'ACCUEIL CLIENTS -->
+  <a class="home-return" href="index.html">
+    ← Retour à l’accueil
+  </a>
+
+  <section class="card">
+    <h2>Espace commerçant</h2>
+    <p class="muted">Gère ta boutique et présente tes produits aux clients de SADIOLA SUGU.</p>
+    <div id="globalMessage" class="message"></div>
+  </section>
+
+  <!-- AUTHENTIFICATION -->
+  <section id="authSection" class="card">
+    <div class="tabs">
+      <button id="loginTab" class="active" onclick="showAuth('login')">Connexion</button>
+      <button id="signupTab" onclick="showAuth('signup')">Créer un compte</button>
+    </div>
+
+    <form id="loginForm">
+      <h3>Se connecter</h3>
+      <label>Adresse e-mail</label>
+      <input id="loginEmail" type="email" required placeholder="Ton adresse e-mail">
+
+      <label>Mot de passe</label>
+      <input id="loginPassword" type="password" required placeholder="Ton mot de passe">
+
+      <button class="primary" type="submit">Se connecter</button>
+    </form>
+
+    <form id="signupForm" class="hidden">
+      <h3>Créer un compte commerçant</h3>
+
+      <label>Nom complet</label>
+      <input id="signupName" required maxlength="100">
+
+      <label>Téléphone</label>
+      <input id="signupPhone" type="tel" required maxlength="25">
+
+      <label>Adresse e-mail</label>
+      <input id="signupEmail" type="email" required>
+
+      <label>Mot de passe (8 caractères minimum)</label>
+      <input id="signupPassword" type="password" minlength="8" required>
+
+      <label>Confirmer le mot de passe</label>
+      <input id="signupPassword2" type="password" minlength="8" required>
+
+      <button class="primary" type="submit">Créer mon compte</button>
+    </form>
+  </section>
+
+  <!-- COMPTE -->
+  <section id="accountSection" class="card hidden">
+    <h3>Mon compte</h3>
+    <p id="accountInfo" class="muted"></p>
+  </section>
+
+  <!-- CREATION BOUTIQUE -->
+  <section id="shopApplication" class="card hidden">
+    <h2>Créer ma boutique</h2>
+    <p class="muted">Remplis les informations et choisis ton abonnement.</p>
+
+    <form id="shopForm">
+      <label>Nom de la boutique</label>
+      <input id="shopName" required maxlength="100">
+
+      <label>Catégorie de la boutique</label>
+      <select id="shopCategory" required>
+        <option value="">Choisir</option>
+        <option>Mode et vêtements</option>
+        <option>Chaussures</option>
+        <option>Téléphones et accessoires</option>
+        <option>Informatique</option>
+        <option>Maison et décoration</option>
+        <option>Beauté et cosmétique</option>
+        <option>Alimentation</option>
+        <option>Autres</option>
+      </select>
+
+      <label>Ville</label>
+      <input id="shopCity" required>
+
+      <label>Adresse ou quartier</label>
+      <input id="shopAddress" required>
+
+      <label>Téléphone de la boutique</label>
+      <input id="shopPhone" type="tel" required>
+
+      <label>Description</label>
+      <textarea id="shopDescription"></textarea>
+
+      <hr>
+      <h3>Choisir un abonnement</h3>
+
+      <label class="plan">
+        <input type="radio" name="plan" value="weekly" data-amount="3000" required>
+        <span><strong>7 jours — 3 000 FCFA</strong></span>
+      </label>
+
+      <label class="plan">
+        <input type="radio" name="plan" value="monthly" data-amount="8000" required>
+        <span><strong>30 jours — 8 000 FCFA</strong></span>
+      </label>
+
+      <label>Référence ou numéro Orange Money utilisé</label>
+      <input id="paymentReference" required maxlength="100">
+
+      <div id="shopMessage" class="message"></div>
+      <button id="submitShopBtn" class="primary" type="submit">Envoyer ma demande</button>
+    </form>
+  </section>
+
+  <!-- ETAT DEMANDE -->
+  <section id="pendingSection" class="card hidden">
+    <h2>Demande de boutique</h2>
+    <p id="pendingText" class="muted"></p>
+    <span id="pendingBadge" class="badge">En attente</span>
+  </section>
+
+  <!-- ESPACE ACTIF -->
+  <section id="dashboardSection" class="hidden">
+
+    <section class="card">
+      <div class="shop-head">
+        <img id="shopLogo" class="shop-logo" alt="Logo boutique">
+        <div style="flex:1">
+          <h2 id="dashboardShopName">Ma boutique</h2>
+          <p id="dashboardShopInfo" class="muted"></p>
+          <span class="badge active">Boutique active</span>
+        </div>
+      </div>
+
+      <label>Changer le logo de ma boutique</label>
+      <input id="shopLogoFile" type="file" accept="image/jpeg,image/png,image/webp,image/gif">
+      <button class="secondary small-btn" onclick="uploadShopLogo()">Enregistrer le logo</button>
+
+      <div class="stats">
+        <div class="stat">
+          <strong id="productCount">0</strong>
+          <small>Mes produits</small>
+        </div>
+        <div class="stat">
+          <strong id="activeProductCount">0</strong>
+          <small>Produits publiés</small>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h3>Mon abonnement</h3>
+      <p id="subscriptionInfo" class="muted">Chargement...</p>
+    </section>
+
+    <!-- COMMANDES -->
+    <section class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap">
+        <h3>Commandes reçues</h3>
+        <button class="secondary small-btn" onclick="loadOrders()">Actualiser</button>
+      </div>
+
+      <div class="stats">
+        <div class="stat">
+          <strong id="newOrderCount">0</strong>
+          <small>Nouvelles commandes</small>
+        </div>
+        <div class="stat">
+          <strong id="allOrderCount">0</strong>
+          <small>Total des commandes</small>
+        </div>
+      </div>
+
+      <div id="ordersList">
+        <div class="empty">Chargement des commandes...</div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h3>Ajouter un produit</h3>
+
+      <form id="productForm">
+        <input id="editProductId" type="hidden">
+
+        <label>Nom du produit</label>
+        <input id="productName" required maxlength="120" placeholder="Exemple : Téléphone Samsung">
+
+        <label>Catégorie</label>
+        <select id="productCategory">
+          <option value="">Sans catégorie</option>
+        </select>
+
+        <label>Prix en FCFA</label>
+        <input id="productPrice" type="number" min="0" step="1" required placeholder="Exemple : 75000">
+
+        <label>Quantité disponible</label>
+        <input id="productStock" type="number" min="0" step="1" value="1" required>
+
+        <label>Description du produit</label>
+        <textarea id="productDescription" placeholder="Décris ton produit"></textarea>
+
+        <label>Photo du produit (5 Mo maximum)</label>
+        <input id="productImage" type="file" accept="image/jpeg,image/png,image/webp,image/gif">
+
+        <div id="productMessage" class="message"></div>
+
+        <button id="saveProductBtn" class="primary" type="submit">Enregistrer le produit</button>
+        <button id="cancelEditBtn" type="button" class="secondary hidden" onclick="resetProductForm()">Annuler la modification</button>
+      </form>
+    </section>
+
+    <section class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap">
+        <h3>Mes produits</h3>
+        <button class="secondary small-btn" onclick="loadProducts()">Actualiser</button>
+      </div>
+      <div id="productsList">
+        <div class="empty">Chargement des produits...</div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h3>Informations de ma boutique</h3>
+      <form id="shopInfoForm">
+        <label>Nom de la boutique</label>
+        <input id="editShopName" required>
+
+        <label>Ville</label>
+        <input id="editShopCity" required>
+
+        <label>Adresse</label>
+        <input id="editShopAddress">
+
+        <label>Téléphone</label>
+        <input id="editShopPhone" required>
+
+        <label>Description</label>
+        <textarea id="editShopDescription"></textarea>
+
+        <button class="primary" type="submit">Enregistrer les informations</button>
+      </form>
+      <div id="shopInfoMessage" class="message"></div>
+    </section>
+
+  </section>
+
+</main>
+
+<footer>
+  <strong>SADIOLA SUGU</strong> — Votre marché, partout au Mali<br>
+  Propulsé par MOH-TECH
+</footer>
+
+<script>
+/* CONFIGURATION */
+const SUPABASE_URL = "https://yujcrcfkykgzjkmiqczu.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_-tpy193fdXgtyBk6zVTO0w_OmAIcoAP";
+const BUCKET = "Sugu";
+
+const db = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_ANON_KEY
+);
+
+let currentUser = null;
+let currentShop = null;
+let categories = [];
+let products = [];
+let currentSubscription = null;
+let ordersTimer = null;
+let ordersLoading = false;
+
+/* OUTILS */
+const el = id => document.getElementById(id);
+
+function showMessage(element,message,type="info"){
+  element.textContent = message;
+  element.className = "message " + type;
+}
+
+function hideMessage(element){
+  element.textContent = "";
+  element.className = "message";
+}
+
+function showGlobal(message,type="info"){
+  showMessage(el("globalMessage"),message,type);
+}
+
+function hideGlobal(){
+  hideMessage(el("globalMessage"));
+}
+
+function formatMoney(value){
+  return Number(value || 0).toLocaleString("fr-FR") + " FCFA";
+}
+
+function formatDate(value){
+  if(!value) return "Non renseignée";
+  return new Date(value).toLocaleDateString("fr-FR",{
+    day:"2-digit",month:"long",year:"numeric"
+  });
+}
+
+function makeSlug(value){
+  return value.toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g,"")
+    .replace(/[^a-z0-9]+/g,"-")
+    .replace(/^-|-$/g,"")
+    .slice(0,45) + "-" + Math.random().toString(36).slice(2,7);
+}
+
+function safeImage(url){
+  return url || "https://placehold.co/300x300?text=SUGU";
+}
+
+/* ARRETER L'ACTUALISATION DES COMMANDES */
+function stopOrdersRefresh(){
+  if(ordersTimer){
+    clearInterval(ordersTimer);
+    ordersTimer=null;
+  }
+}
+
+/* NAVIGATION AUTH */
+function showAuth(type){
+  el("loginForm").classList.toggle("hidden",type!=="login");
+  el("signupForm").classList.toggle("hidden",type!=="signup");
+  el("loginTab").classList.toggle("active",type==="login");
+  el("signupTab").classList.toggle("active",type==="signup");
+  hideGlobal();
+}
+
+/* PROFIL */
+async function ensureMerchantProfile(user,fullName="",phone=""){
+  const {data:profile,error} = await db
+    .from("profiles")
+    .select("id,role")
+    .eq("id",user.id)
+    .maybeSingle();
+
+  if(error) throw error;
+
+  if(profile && profile.role==="owner"){
+    throw new Error("Ce compte est réservé au propriétaire.");
+  }
+
+  if(!profile){
+    const {error:insertError} = await db
+      .from("profiles")
+      .insert({
+        id:user.id,
+        full_name:fullName || user.user_metadata?.full_name || "",
+        phone:phone || user.user_metadata?.phone || "",
+        role:"merchant"
+      });
+    if(insertError) throw insertError;
+  }else{
+    const updates={};
+    if(fullName) updates.full_name=fullName;
+    if(phone) updates.phone=phone;
+
+    if(Object.keys(updates).length){
+      const {error:updateError}=await db
+        .from("profiles")
+        .update(updates)
+        .eq("id",user.id);
+      if(updateError) throw updateError;
+    }
+  }
+}
+
+/* AFFICHAGE DES SECTIONS */
+function hideAllConnectedSections(){
+  el("shopApplication").classList.add("hidden");
+  el("pendingSection").classList.add("hidden");
+  el("dashboardSection").classList.add("hidden");
+}
+
+async function updateInterface(){
+  if(!currentUser){
+    stopOrdersRefresh();
+    el("authSection").classList.remove("hidden");
+    el("accountSection").classList.add("hidden");
+    el("logoutBtn").classList.add("hidden");
+    hideAllConnectedSections();
+    return;
+  }
+
+  el("authSection").classList.add("hidden");
+  el("accountSection").classList.remove("hidden");
+  el("logoutBtn").classList.remove("hidden");
+
+  const name=currentUser.user_metadata?.full_name || currentUser.email || "Commerçant";
+  el("accountInfo").textContent="Bienvenue " + name + ".";
+  hideAllConnectedSections();
+
+  await loadMerchantShop();
+}
+
+/* INSCRIPTION */
+el("signupForm").addEventListener("submit",async function(e){
+  e.preventDefault();
+  hideGlobal();
+
+  const name=el("signupName").value.trim();
+  const phone=el("signupPhone").value.trim();
+  const email=el("signupEmail").value.trim();
+  const password=el("signupPassword").value;
+  const password2=el("signupPassword2").value;
+
+  if(password!==password2){
+    showGlobal("Les mots de passe ne correspondent pas.","error");
+    return;
+  }
+
+  if(password.length<8){
+    showGlobal("Le mot de passe doit contenir au moins 8 caractères.","error");
+    return;
+  }
+
+  const button=this.querySelector("button[type=submit]");
+  button.disabled=true;
+  button.textContent="Création en cours...";
+
+  try{
+    const {data,error}=await db.auth.signUp({
+      email,password,
+      options:{data:{full_name:name,phone:phone}}
+    });
+    if(error) throw error;
+
+    if(data.session && data.user){
+      currentUser=data.user;
+      await ensureMerchantProfile(currentUser,name,phone);
+      await updateInterface();
+      showGlobal("Compte créé avec succès.","success");
+    }else{
+      showGlobal("Compte créé. Connecte-toi pour continuer.","success");
+      showAuth("login");
+      el("loginEmail").value=email;
+    }
+  }catch(error){
+    showGlobal("Erreur : "+error.message,"error");
+  }finally{
+    button.disabled=false;
+    button.textContent="Créer mon compte";
+  }
+});
+
+/* CONNEXION */
+el("loginForm").addEventListener("submit",async function(e){
+  e.preventDefault();
+  hideGlobal();
+
+  const button=this.querySelector("button[type=submit]");
+  button.disabled=true;
+  button.textContent="Connexion...";
+
+  try{
+    const {data,error}=await db.auth.signInWithPassword({
+      email:el("loginEmail").value.trim(),
+      password:el("loginPassword").value
+    });
+    if(error) throw error;
+
+    currentUser=data.user;
+    await ensureMerchantProfile(currentUser);
+    await updateInterface();
+    showGlobal("Connexion réussie.","success");
+  }catch(error){
+    showGlobal("Connexion impossible : "+error.message,"error");
+  }finally{
+    button.disabled=false;
+    button.textContent="Se connecter";
+  }
+});
+
+/* RETROUVER LA BOUTIQUE */
+async function loadMerchantShop(){
+  stopOrdersRefresh();
+
+  const {data:shop,error}=await db
+    .from("shops")
+    .select("*")
+    .eq("owner_id",currentUser.id)
+    .order("created_at",{ascending:false})
+    .limit(1)
+    .maybeSingle();
+
+  if(error) throw error;
+
+  currentShop=shop;
+
+  if(!shop){
+    hideAllConnectedSections();
+    el("shopApplication").classList.remove("hidden");
+    return;
+  }
+
+  if(shop.status!=="active"){
+    await showShopStatus(shop);
+    return;
+  }
+
+  await showMerchantDashboard(shop);
+}
+
+/* STATUT DE LA BOUTIQUE */
+async function showShopStatus(shop){
+  stopOrdersRefresh();
+  hideAllConnectedSections();
+  el("pendingSection").classList.remove("hidden");
+
+  const {data:request,error}=await db
+    .from("subscription_requests")
+    .select("status,plan,amount,created_at")
+    .eq("shop_id",shop.id)
+    .order("created_at",{ascending:false})
+    .limit(1)
+    .maybeSingle();
+
+  if(error) throw error;
+
+  if(shop.status==="suspended"){
+    el("pendingText").textContent="Ta boutique est suspendue. Contacte le propriétaire de SADIOLA SUGU.";
+    el("pendingBadge").textContent="Suspendue";
+    el("pendingBadge").className="badge rejected";
+  }else if(request && request.status==="rejected"){
+    el("pendingText").textContent="Ta dernière demande a été refusée. Contacte le propriétaire pour connaître la raison et les prochaines étapes.";
+    el("pendingBadge").textContent="Demande refusée";
+    el("pendingBadge").className="badge rejected";
+  }else{
+    el("pendingText").textContent="Ta boutique "+shop.name+" est enregistrée. Le propriétaire doit vérifier ton paiement et approuver ta demande avant la publication de tes produits.";
+    el("pendingBadge").textContent="En attente";
+    el("pendingBadge").className="badge";
+  }
+}
+
+/* FORMULAIRE DE DEMANDE */
+el("shopForm").addEventListener("submit",async function(e){
+  e.preventDefault();
+
+  const button=el("submitShopBtn");
+  const message=el("shopMessage");
+  hideMessage(message);
+
+  const selected=document.querySelector('input[name="plan"]:checked');
+  if(!selected){
+    showMessage(message,"Choisis un abonnement.","error");
+    return;
+  }
+
+  button.disabled=true;
+  button.textContent="Enregistrement...";
+
+  try{
+    const {data:shop,error:shopError}=await db
+      .from("shops")
+      .insert({
+        owner_id:currentUser.id,
+        name:el("shopName").value.trim(),
+        slug:makeSlug(el("shopName").value.trim()),
+        category:el("shopCategory").value,
+        city:el("shopCity").value.trim(),
+        address:el("shopAddress").value.trim(),
+        phone:el("shopPhone").value.trim(),
+        description:el("shopDescription").value.trim(),
+        status:"pending"
+      })
+      .select("*")
+      .single();
+
+    if(shopError) throw shopError;
+
+    const {error:requestError}=await db
+      .from("subscription_requests")
+      .insert({
+        shop_id:shop.id,
+        owner_id:currentUser.id,
+        plan:selected.value,
+        amount:Number(selected.dataset.amount),
+        payment_method:"Orange Money",
+        payment_reference:el("paymentReference").value.trim(),
+        status:"pending"
+      });
+
+    if(requestError){
+      throw new Error("Boutique créée mais demande non enregistrée : "+requestError.message);
+    }
+
+    currentShop=shop;
+    el("shopForm").reset();
+    await showShopStatus(shop);
+    showGlobal("Demande envoyée au propriétaire.","success");
+
+  }catch(error){
+    showMessage(message,"Erreur : "+error.message,"error");
+  }finally{
+    button.disabled=false;
+    button.textContent="Envoyer ma demande";
+  }
+});
+
+/* TABLEAU DE BORD */
+async function showMerchantDashboard(shop){
+  stopOrdersRefresh();
+
+  hideAllConnectedSections();
+  el("dashboardSection").classList.remove("hidden");
+
+  el("dashboardShopName").textContent=shop.name;
+  el("dashboardShopInfo").textContent=(shop.city || "")+" • "+(shop.phone || "");
+  el("shopLogo").src=safeImage(shop.logo_url);
+
+  el("editShopName").value=shop.name || "";
+  el("editShopCity").value=shop.city || "";
+  el("editShopAddress").value=shop.address || "";
+  el("editShopPhone").value=shop.phone || "";
+  el("editShopDescription").value=shop.description || "";
+
+  await Promise.all([
+    loadCategories(),
+    loadProducts(),
+    loadSubscription(),
+    loadOrders()
+  ]);
+
+  ordersTimer=setInterval(()=>{
+    if(document.visibilityState==="visible"){
+      loadOrders();
+    }
+  },15000);
+}
+
+/* CATEGORIES */
+async function loadCategories(){
+  const {data,error}=await db
+    .from("categories")
+    .select("id,name")
+    .eq("is_active",true)
+    .order("sort_order",{ascending:true});
+
+  if(error) throw error;
+
+  categories=data || [];
+  const select=el("productCategory");
+  select.innerHTML='<option value="">Sans catégorie</option>';
+
+  categories.forEach(cat=>{
+    const option=document.createElement("option");
+    option.value=cat.id;
+    option.textContent=cat.name;
+    select.appendChild(option);
+  });
+}
+
+/* ABONNEMENT */
+async function loadSubscription(){
+  const {data,error}=await db
+    .from("subscriptions")
+    .select("*")
+    .eq("shop_id",currentShop.id)
+    .order("ends_at",{ascending:false})
+    .limit(1)
+    .maybeSingle();
+
+  if(error) throw error;
+
+  currentSubscription=data;
+
+  if(!data){
+    el("subscriptionInfo").textContent="Aucun abonnement trouvé. Contacte le propriétaire.";
+    return;
+  }
+
+  const now=new Date();
+  const end=new Date(data.ends_at);
+  const expired=end<now;
+
+  el("subscriptionInfo").textContent=
+    "Formule : "+(data.plan==="weekly"?"7 jours":"30 jours")+
+    " • Montant : "+formatMoney(data.amount)+
+    " • Début : "+formatDate(data.starts_at)+
+    " • Expiration : "+formatDate(data.ends_at)+
+    (expired?" • Abonnement expiré":" • Abonnement en cours");
+
+  if(expired){
+    el("subscriptionInfo").style.color="#b52b2b";
+  }else{
+    el("subscriptionInfo").style.color="#176b38";
+  }
+}
+
+/* PRODUITS */
+async function loadProducts(){
+  if(!currentShop) return;
+
+  el("productsList").innerHTML='<div class="empty">Chargement...</div>';
+
+  const {data,error}=await db
+    .from("products")
+    .select("*")
+    .eq("shop_id",currentShop.id)
+    .order("created_at",{ascending:false});
+
+  if(error){
+    el("productsList").textContent="Erreur : "+error.message;
+    return;
+  }
+
+  products=data || [];
+
+  el("productCount").textContent=products.length;
+  el("activeProductCount").textContent=products.filter(p=>p.is_active).length;
+
+  renderProducts();
+}
+
+function renderProducts(){
+  const container=el("productsList");
+  container.innerHTML="";
+
+  if(!products.length){
+    container.innerHTML='<div class="empty">Tu n’as pas encore ajouté de produit.</div>';
+    return;
+  }
+
+  products.forEach(product=>{
+    const category=categories.find(c=>c.id===product.category_id);
+    const item=document.createElement("div");
+    item.className="product";
+
+    const img=document.createElement("img");
+    img.src=safeImage(product.image_url);
+    img.alt=product.name;
+    item.appendChild(img);
+
+    const info=document.createElement("div");
+    info.className="product-info";
+
+    const title=document.createElement("strong");
+    title.textContent=product.name;
+    info.appendChild(title);
+
+    const price=document.createElement("div");
+    price.className="price";
+    price.textContent=formatMoney(product.price);
+    info.appendChild(price);
+
+    const details=document.createElement("div");
+    details.className="muted";
+    details.textContent="Stock : "+product.stock+" • "+(category?category.name:"Sans catégorie");
+    info.appendChild(details);
+
+    const status=document.createElement("div");
+    status.className="muted";
+    status.textContent=product.is_active?"Publié":"Masqué";
+    info.appendChild(status);
+
+    const actions=document.createElement("div");
+    actions.className="product-actions";
+
+    const edit=document.createElement("button");
+    edit.className="secondary";
+    edit.textContent="Modifier";
+    edit.onclick=()=>editProduct(product.id);
+    actions.appendChild(edit);
+
+    const toggle=document.createElement("button");
+    toggle.className="orange";
+    toggle.textContent=product.is_active?"Masquer":"Publier";
+    toggle.onclick=()=>toggleProduct(product);
+    actions.appendChild(toggle);
+
+    const share=document.createElement("button");
+    share.className="secondary";
+    share.textContent="WhatsApp";
+    share.onclick=()=>shareProduct(product);
+    actions.appendChild(share);
+
+    const del=document.createElement("button");
+    del.className="danger";
+    del.textContent="Supprimer";
+    del.onclick=()=>deleteProduct(product);
+    actions.appendChild(del);
+
+    info.appendChild(actions);
+    item.appendChild(info);
+    container.appendChild(item);
+  });
+}
+
+/* COMMANDES DU COMMERÇANT */
+function orderStatusLabel(status){
+  const labels={
+    pending:"Nouvelle commande",
+    confirmed:"Commande confirmée",
+    processing:"En préparation",
+    delivered:"Livrée",
+    cancelled:"Annulée"
+  };
+  return labels[status] || status;
+}
+
+async function loadOrders(){
+  if(!currentShop || ordersLoading) return;
+
+  ordersLoading=true;
+
+  const container=el("ordersList");
+
+  try{
+    const {data:items,error:itemError}=await db
+      .from("order_items")
+      .select("order_id,shop_id,product_name,unit_price,quantity,subtotal")
+      .eq("shop_id",currentShop.id);
+
+    if(itemError) throw itemError;
+
+    const orderIds=[
+      ...new Set((items || []).map(item=>item.order_id))
+    ];
+
+    if(!orderIds.length){
+      el("newOrderCount").textContent="0";
+      el("allOrderCount").textContent="0";
+      container.innerHTML='<div class="empty">Aucune commande reçue pour le moment.</div>';
+      return;
+    }
+
+    const {data:orders,error:orderError}=await db
+      .from("orders")
+      .select("id,customer_name,customer_phone,delivery_address,total,status,created_at")
+      .in("id",orderIds)
+      .order("created_at",{ascending:false});
+
+    if(orderError) throw orderError;
+
+    const allOrders=orders || [];
+
+    el("allOrderCount").textContent=allOrders.length;
+    el("newOrderCount").textContent=
+      allOrders.filter(order=>order.status==="pending").length;
+
+    container.innerHTML="";
+
+    if(!allOrders.length){
+      container.innerHTML='<div class="empty">Aucune commande reçue.</div>';
+      return;
+    }
+
+    allOrders.forEach(order=>{
+      const orderItems=(items || []).filter(
+        item=>item.order_id===order.id
+      );
+
+      const card=document.createElement("div");
+      card.className="order-card";
+
+      const top=document.createElement("div");
+      top.className="order-top";
+
+      const title=document.createElement("strong");
+      title.textContent="Commande #"+order.id.slice(0,8);
+      top.appendChild(title);
+
+      const badge=document.createElement("span");
+      badge.className="order-status";
+
+      if(order.status==="delivered"){
+        badge.classList.add("delivered");
+      }
+
+      if(order.status==="cancelled"){
+        badge.classList.add("cancelled");
+      }
+
+      badge.textContent=orderStatusLabel(order.status);
+      top.appendChild(badge);
+      card.appendChild(top);
+
+      const date=document.createElement("p");
+      date.className="muted";
+      date.textContent="Date : "+formatDate(order.created_at);
+      card.appendChild(date);
+
+      const customer=document.createElement("div");
+      customer.className="order-line";
+      customer.textContent="Client : "+(order.customer_name || "Non renseigné");
+      card.appendChild(customer);
+
+      const phone=document.createElement("div");
+      phone.className="order-line";
+      phone.textContent="Téléphone : "+(order.customer_phone || "Non renseigné");
+      card.appendChild(phone);
+
+      const address=document.createElement("div");
+      address.className="order-line";
+      address.textContent="Livraison : "+(order.delivery_address || "Non renseignée");
+      card.appendChild(address);
+
+      const productsTitle=document.createElement("strong");
+      productsTitle.textContent="Produits commandés";
+      productsTitle.style.display="block";
+      productsTitle.style.marginTop="12px";
+      card.appendChild(productsTitle);
+
+      orderItems.forEach(item=>{
+        const line=document.createElement("div");
+        line.className="order-line";
+        line.textContent=
+          item.product_name+
+          " — "+item.quantity+
+          " × "+formatMoney(item.unit_price)+
+          " = "+formatMoney(item.subtotal);
+        card.appendChild(line);
+      });
+
+      const total=document.createElement("div");
+      total.className="order-total";
+      total.textContent="Total : "+formatMoney(order.total);
+      card.appendChild(total);
+
+      const actions=document.createElement("div");
+      actions.className="order-actions";
+
+      if(order.status==="pending"){
+        const confirmBtn=document.createElement("button");
+        confirmBtn.className="primary";
+        confirmBtn.textContent="Confirmer";
+        confirmBtn.onclick=()=>updateOrderStatus(order.id,"confirmed");
+        actions.appendChild(confirmBtn);
+      }
+
+      if(order.status==="confirmed"){
+        const prepareBtn=document.createElement("button");
+        prepareBtn.className="orange";
+        prepareBtn.textContent="En préparation";
+        prepareBtn.onclick=()=>updateOrderStatus(order.id,"processing");
+        actions.appendChild(prepareBtn);
+      }
+
+      if(order.status==="processing"){
+        const deliveredBtn=document.createElement("button");
+        deliveredBtn.className="primary";
+        deliveredBtn.textContent="Marquer livrée";
+        deliveredBtn.onclick=()=>updateOrderStatus(order.id,"delivered");
+        actions.appendChild(deliveredBtn);
+      }
+
+      if(actions.children.length){
+        card.appendChild(actions);
+      }
+
+      container.appendChild(card);
+    });
+
+  }catch(error){
+    container.textContent="Erreur de chargement des commandes : "+error.message;
+  }finally{
+    ordersLoading=false;
+  }
+}
+
+/* MODIFIER LE STATUT D'UNE COMMANDE */
+async function updateOrderStatus(orderId,newStatus){
+  const labels={
+    confirmed:"confirmer cette commande",
+    processing:"mettre cette commande en préparation",
+    delivered:"marquer cette commande comme livrée"
+  };
+
+  if(!labels[newStatus]) return;
+
+  if(!confirm("Veux-tu vraiment "+labels[newStatus]+" ?")) return;
+
+  try{
+    const {data,error}=await db
+      .from("orders")
+      .update({status:newStatus})
+      .eq("id",orderId)
+      .select("id,status")
+      .single();
+
+    if(error) throw error;
+
+    showGlobal(
+      "Commande mise à jour : "+orderStatusLabel(data.status)+".",
+      "success"
+    );
+
+    await loadOrders();
+
+  }catch(error){
+    showGlobal(
+      "Impossible de modifier la commande : "+error.message,
+      "error"
+    );
+  }
+}
+
+/* ENREGISTRER UNE PHOTO */
+async function uploadImage(file,folder){
+  if(!file) return null;
+
+  const allowed=["image/jpeg","image/png","image/webp","image/gif"];
+
+  if(!allowed.includes(file.type)){
+    throw new Error("Format accepté : JPG, PNG, WEBP ou GIF.");
+  }
+
+  if(file.size>5*1024*1024){
+    throw new Error("La photo ne doit pas dépasser 5 Mo.");
+  }
+
+  const extension=file.name.split(".").pop().toLowerCase();
+
+  const path=currentUser.id+"/"+folder+"/"+Date.now()+"-"+Math.random().toString(36).slice(2,8)+"."+extension;
+
+  const {error}=await db.storage
+    .from(BUCKET)
+    .upload(path,file,{
+      upsert:false,
+      contentType:file.type
+    });
+
+  if(error) throw error;
+
+  const {data}=db.storage.from(BUCKET).getPublicUrl(path);
+  return data.publicUrl;
+}
+
+/* AJOUT / MODIFICATION PRODUIT */
+el("productForm").addEventListener("submit",async function(e){
+  e.preventDefault();
+
+  const button=el("saveProductBtn");
+  const message=el("productMessage");
+  hideMessage(message);
+
+  button.disabled=true;
+  button.textContent="Enregistrement...";
+
+  try{
+    const id=el("editProductId").value;
+    const file=el("productImage").files[0];
+    let imageUrl=null;
+
+    if(file){
+      imageUrl=await uploadImage(file,"products");
+    }
+
+    const payload={
+      shop_id:currentShop.id,
+      name:el("productName").value.trim(),
+      category_id:el("productCategory").value || null,
+      price:Number(el("productPrice").value),
+      stock:Number(el("productStock").value),
+      description:el("productDescription").value.trim(),
+      updated_at:new Date().toISOString()
+    };
+
+    if(imageUrl) payload.image_url=imageUrl;
+
+    if(!Number.isFinite(payload.price) || payload.price<0){
+      throw new Error("Prix invalide.");
+    }
+
+    if(!Number.isInteger(payload.stock) || payload.stock<0){
+      throw new Error("Stock invalide.");
+    }
+
+    if(id){
+      const {error}=await db
+        .from("products")
+        .update(payload)
+        .eq("id",id)
+        .eq("shop_id",currentShop.id);
+
+      if(error) throw error;
+
+      showMessage(message,"Produit modifié avec succès.","success");
+    }else{
+      if(!imageUrl){
+        payload.image_url="";
+      }
+
+      payload.is_active=true;
+
+      const {error}=await db
+        .from("products")
+        .insert(payload);
+
+      if(error) throw error;
+
+      showMessage(message,"Produit ajouté et publié avec succès.","success");
+    }
+
+    resetProductForm();
+    await loadProducts();
+
+  }catch(error){
+    showMessage(message,"Erreur : "+error.message,"error");
+  }finally{
+    button.disabled=false;
+    button.textContent="Enregistrer le produit";
+  }
+});
+
+/* MODIFIER */
+function editProduct(id){
+  const product=products.find(p=>p.id===id);
+  if(!product) return;
+
+  el("editProductId").value=product.id;
+  el("productName").value=product.name || "";
+  el("productCategory").value=product.category_id || "";
+  el("productPrice").value=product.price;
+  el("productStock").value=product.stock;
+  el("productDescription").value=product.description || "";
+  el("productImage").value="";
+
+  el("saveProductBtn").textContent="Enregistrer les modifications";
+  el("cancelEditBtn").classList.remove("hidden");
+  el("productForm").scrollIntoView({behavior:"smooth"});
+}
+
+/* ANNULER MODIFICATION */
+function resetProductForm(){
+  el("productForm").reset();
+  el("editProductId").value="";
+  el("saveProductBtn").textContent="Enregistrer le produit";
+  el("cancelEditBtn").classList.add("hidden");
+}
+
+/* PUBLIER / MASQUER */
+async function toggleProduct(product){
+  const {error}=await db
+    .from("products")
+    .update({
+      is_active:!product.is_active,
+      updated_at:new Date().toISOString()
+    })
+    .eq("id",product.id)
+    .eq("shop_id",currentShop.id);
+
+  if(error){
+    showGlobal("Erreur : "+error.message,"error");
+    return;
+  }
+
+  showGlobal(product.is_active?"Produit masqué.":"Produit publié.","success");
+  await loadProducts();
+}
+
+/* SUPPRIMER */
+async function deleteProduct(product){
+  if(!confirm("Veux-tu vraiment supprimer le produit "+product.name+" ?")) return;
+
+  const {error}=await db
+    .from("products")
+    .delete()
+    .eq("id",product.id)
+    .eq("shop_id",currentShop.id);
+
+  if(error){
+    showGlobal("Suppression impossible : "+error.message,"error");
+    return;
+  }
+
+  showGlobal("Produit supprimé.","success");
+  await loadProducts();
+}
+
+/* WHATSAPP */
+function shareProduct(product){
+  const text=
+    "🛒 "+product.name+
+    "\nPrix : "+formatMoney(product.price)+
+    "\nBoutique : "+currentShop.name+
+    (product.description?"\n"+product.description:"")+
+    (product.image_url?"\nPhoto : "+product.image_url:"");
+
+  const url="https://wa.me/?text="+encodeURIComponent(text);
+  window.open(url,"_blank");
+}
+
+/* LOGO BOUTIQUE */
+async function uploadShopLogo(){
+  const file=el("shopLogoFile").files[0];
+
+  if(!file){
+    showGlobal("Choisis d'abord une photo.","error");
+    return;
+  }
+
+  try{
+    const url=await uploadImage(file,"shops");
+
+    const {error}=await db
+      .from("shops")
+      .update({logo_url:url})
+      .eq("id",currentShop.id)
+      .eq("owner_id",currentUser.id);
+
+    if(error) throw error;
+
+    currentShop.logo_url=url;
+    el("shopLogo").src=url;
+    showGlobal("Logo de la boutique mis à jour.","success");
+
+  }catch(error){
+    showGlobal("Erreur logo : "+error.message,"error");
+  }
+}
+
+/* MODIFIER INFORMATIONS BOUTIQUE */
+el("shopInfoForm").addEventListener("submit",async function(e){
+  e.preventDefault();
+
+  try{
+    const updates={
+      name:el("editShopName").value.trim(),
+      city:el("editShopCity").value.trim(),
+      address:el("editShopAddress").value.trim(),
+      phone:el("editShopPhone").value.trim(),
+      description:el("editShopDescription").value.trim()
+    };
+
+    const {error}=await db
+      .from("shops")
+      .update(updates)
+      .eq("id",currentShop.id)
+      .eq("owner_id",currentUser.id);
+
+    if(error) throw error;
+
+    currentShop={...currentShop,...updates};
+
+    el("dashboardShopName").textContent=currentShop.name;
+    el("dashboardShopInfo").textContent=currentShop.city+" • "+currentShop.phone;
+
+    showMessage(el("shopInfoMessage"),"Informations enregistrées.","success");
+
+  }catch(error){
+    showMessage(el("shopInfoMessage"),"Erreur : "+error.message,"error");
+  }
+});
+
+/* DECONNEXION */
+async function logout(){
+  stopOrdersRefresh();
+
+  const {error}=await db.auth.signOut();
+
+  if(error){
+    showGlobal("Erreur : "+error.message,"error");
+    return;
+  }
+
+  currentUser=null;
+  currentShop=null;
+  products=[];
+  ordersLoading=false;
+
+  await updateInterface();
+  showAuth("login");
+  showGlobal("Déconnexion réussie.","success");
+}
+
+/* INITIALISATION */
+async function init(){
+  const {data,error}=await db.auth.getSession();
+
+  if(error){
+    showGlobal("Erreur de session : "+error.message,"error");
+    return;
+  }
+
+  currentUser=data.session?.user || null;
+
+  if(currentUser){
+    try{
+      await ensureMerchantProfile(currentUser);
+      await updateInterface();
+    }catch(error){
+      currentUser=null;
+      stopOrdersRefresh();
+      await db.auth.signOut();
+      await updateInterface();
+      showGlobal("Erreur : "+error.message,"error");
+    }
+  }else{
+    await updateInterface();
+  }
+}
+
+db.auth.onAuthStateChange((event,session)=>{
+  if(event==="SIGNED_OUT"){
+    currentUser=null;
+    currentShop=null;
+    stopOrdersRefresh();
+    updateInterface();
+  }
+});
+
+init();
+</script>
+</body>
+</html>
