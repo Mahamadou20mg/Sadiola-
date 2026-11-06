@@ -1,7 +1,12 @@
-name: Construire SADIOLA SUGU APK
+cd ~/sadiola-android
+
+cat > .github/workflows/build-apk.yml <<'EOF'
+name: SADIOLA SUGU Android
 
 on:
   push:
+    branches:
+      - main
   workflow_dispatch:
 
 permissions:
@@ -9,6 +14,7 @@ permissions:
 
 jobs:
   build:
+    name: Construire APK Android
     runs-on: ubuntu-latest
 
     steps:
@@ -42,7 +48,7 @@ jobs:
           chmod +x gradlew
           ./gradlew assembleDebug
 
-      - name: Publier le fichier APK
+      - name: Publier APK
         uses: actions/upload-artifact@v4
         with:
           name: SADIOLA-SUGU-APK
