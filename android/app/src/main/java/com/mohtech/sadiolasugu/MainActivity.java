@@ -1,4 +1,4 @@
-package com.mohtech.sadiolasugu;
+package com.mohtech.sadiolasugu.admin;
 
 import com.getcapacitor.BridgeActivity;
 
