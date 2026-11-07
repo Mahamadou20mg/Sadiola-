@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build:
@@ -48,9 +48,15 @@ jobs:
           chmod +x gradlew
           ./gradlew assembleDebug
 
-      - name: Publier APK
-        uses: actions/upload-artifact@v4
+      - name: Publier APK dans GitHub Releases
+        uses: ncipollo/release-action@v1
         with:
-          name: SADIOLA-SUGU-APK
-          path: android/app/build/outputs/apk/debug/app-debug.apk
-          if-no-files-found: error
+          tag: sadiola-apk
+          name: SADIOLA SUGU - Derniere version
+          body: Nouvelle version de SADIOLA SUGU.
+          commit: ${{ github.sha }}
+          artifacts: android/app/build/outputs/apk/debug/app-debug.apk
+          allowUpdates: true
+          replacesArtifacts: true
+          makeLatest: true
+          token: ${{ secrets.GITHUB_TOKEN }}
