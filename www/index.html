@@ -8,6 +8,9 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
+  
+  
+  
 :root{
   --green:#087b58;
   --green-dark:#07503c;
@@ -448,6 +451,132 @@ footer{background:#123b2d;color:white;padding:38px 0 20px}
   .product-image{height:140px}
   .hero h1{font-size:30px}
 }
+
+/* CORRECTION VISUELLE : GRANDES IMAGES DES CATÉGORIES ET BOUTIQUES */
+.category-grid {
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.category-card {
+  min-height: 170px;
+  padding: 16px 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.category-icon {
+  width: 108px;
+  height: 108px;
+  min-width: 108px;
+  margin: 0 auto;
+  border-radius: 18px;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  font-size: 48px;
+  background: var(--cream);
+}
+
+.category-icon img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+  padding: 4px;
+}
+
+.category-card strong {
+  font-size: 13px;
+  line-height: 1.4;
+  text-align: center;
+}
+
+/* IMAGES DES BOUTIQUES PLUS GRANDES */
+.shop-card {
+  padding: 18px 12px;
+  min-height: 210px;
+}
+
+.shop-logo {
+  width: 112px;
+  height: 112px;
+  margin: 0 auto 14px;
+  border-radius: 18px;
+  overflow: hidden;
+  font-size: 48px;
+}
+
+.shop-logo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+/* AFFICHAGE SUR TÉLÉPHONE */
+@media (max-width: 800px) {
+  .category-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 11px;
+  }
+
+  .category-card {
+    min-height: 145px;
+    padding: 12px 5px;
+    gap: 9px;
+  }
+
+  .category-icon {
+    width: 88px;
+    height: 88px;
+    min-width: 88px;
+    border-radius: 15px;
+    font-size: 40px;
+  }
+
+  .category-card strong {
+    font-size: 12px;
+  }
+
+  .shop-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .shop-card {
+    min-height: 195px;
+    padding: 14px 8px;
+  }
+
+  .shop-logo {
+    width: 100px;
+    height: 100px;
+    margin-bottom: 12px;
+    border-radius: 16px;
+    font-size: 42px;
+  }
+}
+
+/* PETITS TÉLÉPHONES */
+@media (max-width: 390px) {
+  .category-icon {
+    width: 78px;
+    height: 78px;
+    min-width: 78px;
+  }
+
+  .shop-logo {
+    width: 90px;
+    height: 90px;
+  }
+}
+
 </style>
 </head>
 
