@@ -369,9 +369,26 @@ async function loadRequests(){
  <p>Téléphone : ${safe(r.shops?.phone||"-")}</p><p>Ville : ${safe(r.shops?.city||"-")}</p>
  <p>Formule : ${r.plan==="weekly"?"7 jours":safe(r.plan)}</p><p>Montant : <b>${money(r.amount)}</b></p>
  <p>Paiement : ${safe(r.payment_method)}</p><p>Référence : ${safe(r.payment_reference||"-")}</p><p>${date(r.created_at)}</p>
- ${r.status==="pending"?`<div class="actions"><button class="btn green small" onclick="review('${r.id}','approved')">✓ Approuver</button><button class="btn danger small" onclick="review('${r.id}','rejected')">Refuser</button></div>`:""}
+ ${r.status==="pending"?`<div class="actions"><button class="btn green small" onclick="review('${r.id}','approved')">✓ Approuver</button><button class="btn danger small" onclick="review('${r.id}','rejected')">Refuser</button></div>`:""}<div class="actions"><button class="btn danger small" onclick="deleteRequest('${r.id}')">🗑 Supprimer la demande</button></div>
  </div>`).join(""));
  filterList("searchRequests","requestList");
+}
+
+
+async function deleteRequest(id){
+ if(!confirm("Supprimer définitivement cette demande ? Le paiement associé sera conservé. Cette action est irréversible."))return;
+
+ try{
+  message("Suppression de la demande...");
+  const {data,error}=await db.rpc("delete_subscription_request_by_owner",{p_request_id:id});
+  if(error)throw error;
+
+  await logAction("Suppression demande","subscription_requests",id);
+  await loadAll();
+  message("Demande supprimée. Le paiement est conservé.","success");
+ }catch(err){
+  message("Suppression impossible : "+err.message,"error");
+ }
 }
 
 async function loadShops(){
