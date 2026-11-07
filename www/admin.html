@@ -143,7 +143,10 @@ hr{border:0;border-top:1px solid var(--line);margin:17px 0}.loading{color:var(--
 
 <section id="requests" hidden>
  <div class="page-head"><div><h1>Demandes de boutiques</h1><p>Vérifie le paiement avant toute approbation.</p></div></div>
- <div class="toolbar"><input id="searchRequests" placeholder="Rechercher une demande..."></div>
+ <div class="toolbar">
+ <input id="searchRequests" placeholder="Rechercher une demande...">
+ <button id="deleteRejectedRequestsBtn" class="btn danger" onclick="deleteRejectedRequests()">🗑 Supprimer toutes les demandes rejetées</button>
+</div>
  <div id="requestList" class="list"><p class="loading">Chargement...</p></div>
 </section>
 
@@ -359,6 +362,29 @@ async function review(id,decision){
  if(error)return message("Erreur : "+error.message,"error");
  await logAction("Demande "+decision,"subscription_request",id);
  message(typeof data==="string"?data:"Demande traitée.","success");await loadAll();
+}
+
+async function deleteRejectedRequests(){
+ const confirmed=confirm("ATTENTION : supprimer définitivement toutes les demandes rejetées ? Les demandes en attente et approuvées seront conservées. Les paiements associés seront conservés.");
+ if(!confirmed)return;
+
+ const btn=document.getElementById("deleteRejectedRequestsBtn");
+ if(btn)btn.disabled=true;
+
+ try{
+  message("Suppression des demandes rejetées...");
+  const {data,error}=await db.rpc("delete_rejected_subscription_requests");
+  if(error)throw error;
+
+  const count=Number(data)||0;
+  await logAction("Suppression des demandes rejetées","subscription_requests",null,{deleted_count:count});
+  await loadRequests();
+  message(count+" demande(s) rejetée(s) supprimée(s).","success");
+ }catch(err){
+  message("Erreur : "+err.message,"error");
+ }finally{
+  if(btn)btn.disabled=false;
+ }
 }
 
 async function loadRequests(){
